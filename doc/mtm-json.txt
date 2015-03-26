@@ -1,0 +1,157 @@
+*mtm-json.txt*  MapTool Macros:  JSON Functions
+
+List of all JSON-related functions:
+
+    Function                                           Link  
+    json.append({jarr}, {value} [, {value} ...])      |mtm-json.append()|
+    json.contains({jarr}, {value})                    |mtm-json.contains()|
+    json.contains({jobj}, {key})
+    json.count({jarr}, {value} [, {start}])           |mtm-json.count()|
+    json.difference({jarr}, {jarr} [, {jarr} ...])    |mtm-json.difference()|
+    json.difference({jobj}, {jobj} [, {jobj} ...])
+    json.equals({jarr}, {jarr})                       |mtm-json.equals()|
+    json.equals({jobj}, {jobj})
+    json.evaluate({jarr})                             |mtm-json.evaluate()|
+    json.evaluate({jobj})
+    json.fields({jarr} [, {delim}])                   |mtm-json.fields()|
+    json.fields({jobj} [, {delim}])
+    json.fromList({strList} [, {delim}])              |mtm-json.fromList()|
+    json.fromStrProp({strProp})                       |mtm-json.fromStrProp()|
+    json.get({jarr}, {start} [, {end}])               |mtm-json.get()|
+    json.get({jobj}, {key} [, {key}])
+    json.indent({jobj} [, {spaces}])                  |mtm-json.indent()|
+    json.indexOf({jarr}, {value} [, {start}])         |mtm-json.indexOf()|
+    json.intersection({jarr} [, {jarr} ...])          |mtm-json.intersection()|
+    json.intersection({jobj} [, {jobj} ...])
+    json.isEmpty({jarr})                              |mtm-json.isEmpty()|
+    json.isEmpty({jobj})
+    json.isEmpty({str})
+    json.length({jarr})                               |mtm-json.length()|
+    json.length({jobj})
+    json.merge({jarr}, {jarr} [, {jarr} ...])         |mtm-json.merge()|
+    json.merge({jobj}, {jobj} [, {jobj} ...])
+    json.remove({jarr}, {index})                      |mtm-json.remove()|
+    json.remove({jobj}, {key})
+    json.removeAll({jarr}, {jarr} [, {jarr} ...])     |mtm-json.removeAll()|
+    json.removeAll({jobj}, {jobj} [, {jobj} ...])
+    json.reverse({jarr})                              |mtm-json.reverse()|
+    json.set({jarr}, {index}, {value} [, ...])        |mtm-json.set()|
+    json.set({jobj}, {key}, {value} [, ...])
+    json.shuffle({jarr})                              |mtm-json.shuffle()|
+    json.sort({jarr} [, {direction} [, {key} ...]])   |mtm-json.sort()|
+    json.subset({jarr}, {jarr} [, {jarr} ...])        |mtm-json.subset()|
+    json.subset({jobj}, {jobj} [, {jobj} ...])
+    json.toList({jarr} [, {delim}])                   |mtm-json.toList()|
+    json.toStrProp({jobj} [, {delim}])                |mtm-json.toStrProp()|
+    json.type({any})                                  |mtm-json.type()|
+    json.union({jarr}, {jarr} [, {jarr} ...])         |mtm-json.union()|
+    json.union({jobj}, {jobj} [, {jobj} ...])
+    json.unique({jarr})                               |mtm-json.unique()|
+-------------------------------------------------------------------------------
+
+                                    *mtm-json.append()*
+json.append({jarr}, {value} [, {value}]))
+    Appends to {jarr} all {value}s provided as parameters.
+
+    Examples
+	[h: array = "['Number', '1']"]
+	[ newArray = json.append(array, "This", "is", "a", "test.")]
+	    => ["Number", "1", "This", "is", "a", "test."]
+
+                                    *mtm-json.contains()*
+json.contains({jarr}, {value}))
+json.contains({jobj}, {key})
+    Returns true or false depending on whether {jarr} (or {jobj})
+    contains an element whose value matches {value} (or {key}).
+    When looking for multiple {value}s (or {key}s), it may be more
+    convenient to construct a separate array (or object) and use
+    |mtm-json.intersection()| instead and check to see if the output
+    contains any elements at all.
+
+    Examples
+	[h: array = "[ 1, 1, 2, 3, 5, 8, 13, 21, 34, 55 ]"]
+	[ yesno = json.contains(array, 8)]
+	    => 1
+	    (One is true in MapTool's macro language.)
+
+                                    *mtm-json.count()*
+json.count({jarr}, {value} [, {start}]))
+    Counts the number of occurrences of {value} in {jarr} starting at
+    element {start} in the array.  (The default starting element is the
+    beginning of the array, element 0.)
+
+    Examples
+	[h: array = "[ 1, 1, 2, 3, 5, 8, 13, 21, 34, 55 ]"]
+	[ count = json.count(array, 1)]
+	    => 2
+
+				    *mtm-json.difference()*
+json.difference({jarr}, {jarr} [, {jarr} ...])
+json.difference({jobj}, {jobj} [, {jobj} ...])
+    Computes the differences between two or more arrays or objects.  The
+    difference is the set of elements from the first array or object
+    that remain after removing any elements that appear in the other arrays
+    or objects.
+
+    BUG: Only accepts two parameters as of 1.3.b61.
+
+    Examples
+	[h: array1 = "[ 1, 1, 2, 3, 5, 8, 13, 21, 34, 55 ]"]
+	[h: array2 = "[ 1, 2, 3, 5, 7, 11, 13, 17, 23, 29 ]"]
+	[ newArray = json.difference(array1, array2)]
+	    => [ 34, 8, 55, 29 ]
+
+                                    *mtm-json.equals()*
+json.equals({jarr}, {jarr})
+json.equals({jobj}, {jobj})
+    Compares the two JSON objects to determine if they contain the exact
+    same elements.  For arrays the content of each element is checked;
+    for objects the field names and their values are checked.
+
+    Examples
+	[h: array1 = "[ 1, 2, 3, 5, 7, 11, 13, 17, 23, 29 ]"]
+	[h: array2 = "['Number', '1']"]
+	[ yesno = json.equals(array1, array1)]
+	    => 0
+	    (Zero is false in MapTool's macro language.)
+
+                                    *mtm-json.evaluate()*
+json.evaluate({jarr})
+json.evaluate({jobj})
+    Evaluates every element of {jarr} and replaces it with the result.
+    For {jobj} does the same thing, but does not evaluate keys, only
+    values.  This means the values must be inside brackets to be treated
+    as anything other than simple strings.  See also |mtm-eval|.
+
+    Examples
+	[h: array1 = "[ '[r: 1d6]', '[r: 2+4]', '[r: floor(5/3)]' ]"]
+	[ newArray = json.evaluate(array1)]
+	    => [5,6,1]
+
+                                    *mtm-json.fields()*
+json.fields({jarr} [, {delim}])
+json.fields({jobj} [, {delim}])
+    Creates a list of subscripts that references each value in the JSON
+    data type.  For arrays this is a list of numeric subscripts and for
+    objects this is a list of keys.  The {delim} controls whether the
+    return value is a string list (default delim is ",") or a JSON array
+    (set {delim} to "json").
+
+    Examples
+	[h: array1 = "[ 1, 2, 3, 5, 7, 11, 13, 17, 23, 29 ]"]
+	[ newArray = json.fields(array1)]
+	    => 0,1,2,3,4,5,6,7,8,9
+	[h: object1 = "{ name: 'Thor', size: 'Large', weight: 'Extreme' }"]
+	[ newArray = json.fields(object1, "json")]
+	    => ["name","size","weight"]
+
+                                    *mtm-json.fromList()*
+json.fromList({strList} [, {delim}])
+    Converts a list of values stored in a string using {delim} as the
+    delimiter into a JSON array.  Since the input is a simple list of
+    values, the result cannot be a JSON object.
+
+    Examples
+	[h: string1 = "1, 2, 3, 5, 7, 11, 13, 17, 23, 29"]
+	[ array1 = json.fromList(string1)]
+	    => [1,2,3,5,7,11,13,17,23,29]

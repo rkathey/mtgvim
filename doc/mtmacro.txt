@@ -1,0 +1,3002 @@
+*mtmacro* Plugin for writing maptool macros
+
+Plugin for writing macros for MapTool.
+MapTool macros are made up of a combination of HTML and MapTool inline 
+rolls [] and commands {}. In the case of campaign, global and macros that
+you type in these can be preceded by slash commands that determine who the
+output should go to, or how the macro should be intepreted. See the
+MapTool Macro Quickstart (|mtm-quickstart|) section for a brief overview.
+
+    Plugin Setup:                       |mtm-setup|
+    Plugin Settings:                    |mtm-settings|
+    MapTool Macro Quickstart:           |mtm-quickstart|
+    MapTool Rolls:                      |mtm-rolls|
+    MapTool Dice:                       |mtm-dice|
+    MapTool Comparison Operators:       |mtm-comparisons|
+    MapTool Special Variables:          |mtm-special-variables|
+    String List details:                |mtm-list|
+    String Property Details:            |mtm-prop|
+    Input Function:                     |mtm-input|
+    MapTool Functions:                  |mtm-functions|
+    Editor Mappings:                    |mtm-mappings|
+    Maptool slash commands:             |mtm-slash-commands|    
+
+===============================================================================
+
+SETUP                                                                *mtm-setup*
+This plugin requires filetype plugins to be on, add the following line to your
+|.vimrc|
+ 
+ filetype plugin on
+ 
+
+SETTINGS                                                          *mtm-settings*
+
+Function Hints  
+By default function hints are displayed at the bottom of the window to give 
+you details as to what a function expects as arguments and returns. This will
+set the cmdheight (the status area at bottom of the window) to 2 if it is not
+already higher. If you do not want the hints functionality then edit your
+|.vimrc|and place in the following line  
+ let g:mtmacro#DontShowHints=1
+ 
+OmniComplete Details Window  
+The following settings influence the way that the plugin works.
+The omnicomplete function will open a scratch window that displays more
+information than the regular completion menu. If you don't want this scratch
+window to be opened then place the following line in your |.vimrc| 
+ 
+ let g:mtmacro#DontShowScratch=1 
+ 
+If you want the scratch window to show up but would like it to close after you
+have selected the completion then place the following lines in your |.vimrc| 
+ 
+ autocmd CursorMovedI * if pumvisible() == 0|pclose|endif
+ autocmd InsertLeave * if pumvisible() == 0|pclose|endif 
+ 
+OmniComplete Window  
+The default completion for the plugin will insert the function name but no
+parameters, for example
+ 
+    abs()
+ 
+If you want the completion to add in place holders for the argumnets when it
+does completion, such as
+ 
+    abs(number)
+ 
+Then add the following line in your |.vimrc|
+ 
+ let g:mtmacro#InclParam=1
+ 
+===============================================================================
+
+MAPTOOL MACROS QUICKSTART                                       *mtm-quickstart*
+Macros in MapTool are made up of an optional slash command, HTML, inline rolls
+in [] and commands in {}. Currently HTML 3.2 with CSS1 is supported. There are
+some cirumstances where a slash command is not supported at the start of the 
+macro.
+
+I will not discuss slash commands here if you want more information on the 
+slash commands that are available see |mtm-slash-commands|.
+
+For more information about HTML 3.2 see 
+    http://www.w3.org/TR/REC-html32
+    http://home.clara.net/heureka/sunrise/webqref.htm
+
+You may want to cut the examples from this document and paste them into MapTool
+as you read along so that you can see the results.  And if in doubt just make a 
+copy of one of your campaigns, open it in MapTool and feel free to experiment
+to your hearts content as there is nothing you can really break (as long as you
+do not save it over your old campaign). 
+
+    The simplest macro consists of nothing but text with no formating or inline 
+    rolls or commands. For example  
+        This is a boring and pretty useless example.
+ 
+    You can spice this up a little by adding some HTML formatting such as.  
+        This is <b>still</b> a boring and pretty useless example.
+ 
+    Where macros become more useful is when you embed inline rolls in [] or 
+    commands {} within them. A simple case  
+        You roll a six sided dice and get [1d6].
+    or  
+        You roll a six sided dice and get <i>[1d6]</i>.
+ 
+    Within the [] inline rolls or {} commands you can use functions and/or
+    expressions that can get information from or modify the current token.
+    When you refer to variables within these brackets they are first checked
+    against the token properties, if it is not a token property then it will
+    check if the variable is set, if the variable has not previously been set
+    then the user will be prompted for a value. You can also change token
+    properties by assigning values to a variable of the same name. For example
+    if the current token has a property called HP you can read it with the
+    following  
+        My hit points are [r: HP]
+        [h: currentHP = HP]
+    You can set the tokens HP property with  
+        [h: HP = HP - DamageDone]
+    If the DamageDone variable is not defined then the user will be prompted
+    for the value.
+
+    You can also use {} or [r: ] within HTML tags, for example (you will need
+    to impersonate a token for these examples)  
+        <img src="{getTokenImage()}"></img>
+        <img src="[r: getTokenImage()]"></img>
+        <span style="color: {getHalo()}>This text is in your halo color</span>
+ 
+You can find more information about the functions and special variables that
+are available in the rest of the |mtmacro| help.
+
+===============================================================================
+
+MAPTOOL ROLLS                                                        *mtm-rolls*
+
+MapTools takes any text within a [] or {} and treats it as a roll. Rolls
+within a [] have an optional argument that modifies the format of the roll or
+how the roll is made.
+
+Follow the links for the roll for a more details and examples for the rolls.
+
+FORMATTING ROLLS               MEANING  
+|mtm-roll|
+[ {expr} ]              Perform {expr} and display result; the details
+                        are displayed in the Tooltip.  Tooltips are the
+                        default output format and will be used for
+                        all rolls in [] that are not hidden, expanded,
+                        or result rolls.
+
+|mtm-hidden-roll|
+[h: {expr} ]            Hidden Roll, perform {expr} and hide result 
+                        (no output).
+
+|mtm-result-roll|
+[r: {expr} ]            Result Roll, perform {expr} and display only
+                        the result.
+
+|mtm-result-roll|
+{ {expr} }              Result Roll, perform {expr} and display only
+                        the result.
+
+
+|mtm-expanded-roll|
+[e: {expr} ]            Expanded Roll, perform {expr} and display the
+                        detailed output.
+
+|mtm-tooltip-roll|
+[t: {expr} ]            ToolTip Roll, perform {expr} and display
+                        result; the details are displayed in the
+                        Tooltip.
+
+|mtm-toooltip-roll|
+[t({expr}): {tooltip} ] Display the evaluated value of {expr} and 
+                        evaluate {tooltip} as the tooltip.
+
+|mtm-unformated-roll|
+[u: {expr} ]            Display the evaluated value of {expr} and
+                        display the detailed value (as in [e: ])
+                        without any color formatting.
+
+LOOP ROLLS                  MEANING  
+|mtm-count-roll|
+[c({count} [,{delim}]): {expr} ]         
+                        Perform dice roll {count} times. {delim} is
+                        used to separate the output, if it is not 
+                        specified then it defaults to ', '.
+
+|mtm-while-roll|
+[while({test} [,{delim}]): {expr}]     
+                        {expr} is performed while the result of {test}
+                        is true. {delim} is used to separate the 
+                        output, if it is not specified then it 
+                        defaults to ', '.
+
+|mtm-for-roll|
+[for({var},{start},{end}[,{step} [,{delim}]]): {expr}]
+                        {var} is set to the values between {start} and
+                        {end} in increments of {step}, and {expr} is 
+                        executed each time.  {delim} is used to 
+                        separate the output, if it is not specified then 
+                        it defaults to ', '.  In 1.3.b55+, the last
+			iteration of the loop is {var} set to {end}-1; in
+			prior versions it was {end}.
+
+
+|mtm-foreach-roll|
+[foreach({var}, {list} [,{outdelim} [,{listdelim}]]): {expr}]
+                        {var} is set to each value in the string list
+                        {list} and {expr} is evaluated. {outdelim} is
+                        used to separate the displayed values if it is
+                        not specified the default value of ', ' is
+                        used. {listdelim} is the character that is
+                        used as the delimiter of the list, if not     
+                        specified it defaults to ','.
+
+OTHER ROLLS                     MEANING  
+|mtm-code-roll|
+[code: { {macro} } ]    Allows you to embed other rolls inside of a
+                        roll. This type of roll is usually used in 
+                        combination with a for, foreach, count, while
+                        or if roll. 
+
+|mtm-if-roll|
+[if({test}): {true}; [{false}] ]  If {test} is true then {true} is 
+                                  evaluated and displayed, otherwise 
+                                  {false} is evaluated and displayed. 
+
+				  If {false} is not specified it is 
+				  evaluated as an empty string.
+|mtm-macro-roll|
+[macro({macro-name}): {args}]     Evaluates {macro-name} and calls the 
+                                  macro that it points to with the 
+                                  evaluated value of {args} as the
+                                  arguments to the macro.  {args} is
+				  commonly a list expression.
+				  |mtm-listGet()|
+|mtm-case-roll|
+|mtm-switch-roll|                
+[switch({value}):                 Evaluates {test} and compares it to
+	case {case}: {expr};            each {case} if it matches then the 
+	case {case}: {expr};            corresponding {expr} is returend. If none
+	default: {expr} ]               of the {case}'s match then the default
+                                  {expr} is returned. {case} can be either
+                                  a number or a string.
+
+Rolls can be combined such as:
+Hidden count roll  
+ [h,c(10): a = a + roll.count]
+ 
+While roll with code block  
+ [while(a<10), code: `[a=a+1] [b=b+a*2]`]
+ 
+
+===============================================================================
+
+MAPTOOL ROLL                                                          *mtm-roll*
+[ {expr} ] 
+    Performs the expression and display the results. The details of the 
+    evaluation are provided in the tooltip.
+
+    Examples   
+        [2d6]
+            Displays the result of the roll, e.g. 5 and the details in the 
+            tooltip e.g. << 2d6 = 5 >>  
+        [a=1]
+            Sets the variable a to 1 and displays 1, with << a = 1 = a = 1 >> 
+            as the tooltip.
+
+
+MAPTOOL HIDDEN ROLL                                            *mtm-hidden-roll*
+[h: {expr} ]
+    Performs the expression and discard the output. This type of format roll is
+    useful for when you want to modify variable but not show the output of the
+    variable manipulation.
+
+    Examples  
+        [h: a = 10]
+            Sets the variable a to 10 with no output.
+
+
+MAPTOOL RESULT ROLL                                            *mtm-result-roll*
+[r: {expr} ] or { {expr} }
+    Performs the expression and displays the result as the output; there are no
+    tooltips or colored formatting.
+
+    Examples  
+        [r: a = 10]
+            Sets the variable a to 10 and displays 10 as the output  
+        {a = 20}
+            Sets the variable a to 20 and displays 20 as the output.
+
+MAPTOOL TOOLTIP ROLL                                          *mtm-tooltip-roll*
+[t: {expr} ]
+    Performs the {expr} and displays the result the same as the [ ] roll, see
+    |mtm-roll| for more details.
+
+[t({expr}): {tooltip} ]
+    Performs the {expr} and displays the result with the detailed evaluated 
+    result of {tooltip} used for the tooltip for the result.
+
+        Examples  
+            [t("Attack Roll"): 1d20]
+                Displays "Attack Roll".  An example of the tooltip for the
+                result is << 1d20 = 6 >>  
+            [h: out = "Blah"][t(out): a = 1]
+                Sets the variable a to 1 and displays Blah with a tooltip of 
+                << a = 1 = a = 1>>
+
+
+MAPTOOL UNFORMATED ROLL                                   *mtm-unformatted-roll*
+[u: {expr} ]
+    Performs the {expr} and displays the detailed output without any tooltip or 
+    color formatting.
+
+    Examples  
+        [u: a = 10]
+            Displays << a = 10 = a = 10 >> without any tooltip or color 
+            formatting.
+
+MAPTOOL COUNT ROLL                                              *mtm-count-roll*
+[c({count} [,{delim}]): {expr} ]         
+    Performs the {expr} expression {count} times and display the results 
+    sperated by {delim}. If {delim} is not specified then the default value of 
+    ', ' is used. The special variable roll.count contains the current count in 
+    the loop starting from 0. 
+
+    Examples  
+        [h:a=0][r,c(10): a = a + 1]
+            Displays 1, 2, 3, 4, 5, 6, 7, 8, 9, 10  
+        [h:a=0][r,c(10,":"): a = a + 1]
+            Displays 1:2:3:4:5:6:7:8:9:10  
+        [r,c(10): roll.count]
+            Displays 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+
+MAPTOOL WHILE ROLL                                              *mtm-while-roll*
+[while({test} [,{delim}]): {expr}]     
+    While the {test} evaluates to true the {expr} expression is evaluated and
+    displayed with {delim} as a separator, if {delim} is not specified then the 
+    default value of ', ' is used. The special variable roll.count starts at 0
+    and is incremented as the loop is peformed. There is an internal maptool 
+    limit to how many times the loop can be performed so that you can not
+    accidently create a loop that will never terminate.
+
+    See |mtm-comparisons| for details of the conditional tests.
+
+    Examples  
+        [h:a=0][r,while(a<10): a = roll.count]
+            Sets the variable a to the loop counter variable and displays
+            0, 1, 2, 3, 4, 5, 6, 7, 8, 9  
+        [h:a=0][r,while(a<10,":"): a = roll.count]
+            Sets the variable a to the loop counter variable and displays
+            0:1:2:3:4:5:6:7:8:9 
+ 
+            Count the number of rolls until a 6 is rolled and display the 
+            result  
+            [h:count=0][h:res=0][while(res<6),code: `
+                [h:res=1d6][h:count=count+1]`] [r:count]
+ 
+MAPTOOL FOR ROLL                                                  *mtm-for-roll*
+[for({var},{start},{end}[,{step} [,{delim}]]): {expr}]
+    The variable {var} is set to {start} for the first time through the for 
+    loop, at the end of the loop {step} is added to {var}. If the loop counts 
+    upwards then it is continues until {var} is greater than {end}.  (In
+    1.3.b55+, it stops when {var} is >= {end}.)  If it counts downwards then
+    it continues until {var} is less than {end}. If {step} is not specified
+    then it defaults to 1 for loops that count upwards, or -1 for loops that
+    count downwards. The ouput for each iteration through the loop is
+    separated by {delim}, if {delim} is not specified then the default value
+    of ', ' is used.  The special variable roll.count starts at 0 and is
+    incremented as the loop is peformed. There is an internal MapTool limit
+    to how many times the loop can be performed so that you can not accidently
+    create a loop that will never terminate.
+
+    Examples  
+        [r,for(blah,1,10): blah]
+            Displays 1, 2, 3, 4, 5, 6, 7, 8, 9, 10  
+        [r,for(blah,20,30,2): blah]
+            Displays 20, 22, 24, 26, 28, 30  
+        [r,for(blah,20,30,2): roll.count]
+            Displays 0, 1, 2, 3, 4, 5  
+        [r,for(blah,20,30,2,":"): blah]
+            Displays 0:1:2:3:4:5
+
+MAPTOOL FOREACH ROLL                                          *mtm-foreach-roll*
+[foreach({var}, {list} [,{outdelim} [,{listdelim}]]): {expr}]
+    The variable {var} is set to each of the items in the string list 
+    {list} (see |string-list|) and {expr} is evaluated. The output of each 
+    iteration through the loop is separated with {outdelim}}; if {outdelim} is 
+    not set then the default value of ', ' is used. The {listdelim} argument is 
+    used when the list delimiter is different to the default value (', '). 
+    {delim}, if {delim} is not specified then the default value of ', ' is
+    used.  The special variable roll.count starts at 0 and is incremented as
+    the loop is peformed. 
+
+    Examples  
+        [r,foreach(val,"test, one, two"): "position " + roll.count + "=" + val]
+            Displays position 0=test, position 1=one, position 2=two  
+        [r,foreach(val,"test, one, two",":"): "position " + 
+                                              roll.count + "=" + val]
+            Displays position 0=test:position 1=one:position 2=two  
+        [r,foreach(val,"test| one| two",":", "|"): "position " +
+                                                   roll.count + "=" + val]
+            Displays position 0=test:position 1=one:position 2=two  
+
+MAPTOOL CODE ROLL                                                *mtm-code-roll*
+[code: `{macro}` ]
+    The code roll is used to embed macros that may contain rolls inside of this
+    roll. The {macro} may contain any of the normal macro contents except
+    slash commands (see |mtm-slash-commands|) and other [code: ``] blocks. The 
+    {macro} to be executed must be enclosed in `` blocks. [code: ``] macros are
+    intended to be combined with the loop or conditional rolls as they do not
+    provide much functionality when used by themselves.
+
+    Examples  
+        [code: `Blah Blah Blah [a=1]`]
+            Displays Blah Blah Blah 1 with a tooltip of << a = 1 = a = 1 >>
+            for the 1.  
+
+        Count the number of rolls until a 6 is rolled and display the result  
+        [h:count=0][h:res=0][while(res<6),code: `[h:res=1d6][h:count=count+1]`]
+        [r:count]
+
+MAPTOOL IF ROLL                                                    *mtm-if-roll*
+[if({test}): {true}, {false}] 
+    The expression {test} is evaluated and if it is true (or non zero) then the
+    expression {true} is evaluated, otherwise the expression {false} is 
+    evaluated.  The [if():] roll differs from the if() function (see |mtm-if||) 
+    in a couple of ways, first if the [code:] roll is used then you can assign 
+    values to variables in {true} and {false}, secondly either {true} or {false} 
+    is evaluated, unlike if() which will evalute both before returning the
+    appropriate value.
+    
+    See |mtm-comparisons| for details of the conditional tests.
+
+    Examples  
+        [r,if(1==1): "one", "another"]
+            Displays one  
+        [r,if(1<2),code: `[a=1]`, `[a=10]` ]
+            Displays 1 with a tooltop of << a = 1 = a = 1 >>
+
+MAPTOOL MACRO ROLL                                              *mtm-macro-roll*
+[macro({macro-name}): {args}]     
+    Evaluates {macro-name} and calls the macro that it refers to. {name} is an 
+    expression that evaluates to the name of a macro to be run, passing the 
+    evaluated value of {args} as the argument to the macro.
+
+    All macros are run against the current token regardless of where the macro
+    resides.
+
+    Macro names are of the following form (names are not case sensitive)
+    Naming Convention               Macro Executed  
+    {name}@token                    Serches for a macro called {name} on the
+                                    current token and executes it.
+
+    {name}@global                   Searches for a macro called {name} on the
+                                    global macro panel and executes it.
+    
+    {name}@campaign                 Searches for a macro called {name} on the
+                                    campaign macro panel and executes it.
+
+    {name}@Lib:{libToken}           Searches for a token called 
+                                    "Lib:{libToken}" and will then search for 
+                                    a macro called {name} on that token and 
+                                    executes it.
+
+    {name}@this                     Executes the macro from the same token
+                                    that the currently executing macro belongs
+				    to.
+
+    Macros called with [macro():] execute in their own scope, that is they can
+    not see or modify the caller's variables. The arguments to the macro are
+    available in the special variable macro.args. The macro can also return a 
+    value by setting the special variable macro.return which can be read by the 
+    calling macro. If no return value is set by the macro that is called the 
+    macro.return value will be equal to "".
+
+    Where the macro resides on another token and is executed with
+    {name}@{libToken} format then all maps are searched for the token; the 
+    token does not need to be owned by the person that is running the macro.
+    If the token has the "visible to players" flag set then any player can
+    execute the macro. If the "visible to players" flag is not set then only
+    the GM can execute the macro.
+
+    Examples  
+        [r,macro("name@token"): "a1=2; a2=blah"]
+            Calls the macro called name on the current token, for that macro 
+            macro.args will be set to "a1=2; a2=blah". Any output from the 
+            macro will be displayed and the value macro.return will contain the 
+            return value (if any) of the macro.  
+
+        [r,macro("name@campaign"): "a1=2; a2=blah"] return value is 
+        [r: macro.return]
+            Calls the macro called name from the campaign panel macros and 
+            displays the return value.
+
+MAPTOOL SWITCH ROLL                                             *mtm-macro-case*
+                                                              *mtm-macro-switch*
+[switch({value}):   
+    case {case}: {expr}; 
+    case {case}: {expr};
+    default: {expr} ]  
+	
+    Evaluates {value} and then compares it against each of the {case}'s. If it
+    matches one of the {case}'s then the corresponding {expr} is evaluated and
+    returned, otherwise the {expr} for default is evaluated and returned.
+
+    Examples  
+	[h: v = 1d4] [r,switch(v):
+	    case 1: "You Rolled a 1";
+	    case 2: "You Rolled a 2";
+	    case 3: "You Rolled a 3";
+	    case 4: "You Rolled a 4";
+	    default: "WTF?!?!?"
+	]
+ 
+
+===============================================================================
+
+MAPTOOL DICE ROLLS                                                    *mtm-dice*
+
+The following dice rolls are usable in MapTool, they can be used in either []
+or {} in a macro. The Format below is case insensitive so 1d6 is the same as
+1D6. Usually the number of dice may be omitted in which case 1 dice will be
+rolled.
+
+Type/Format         Example        Meaning  
+Drop Lowest         5d6d1          Roll {s} sided dice {n} times and 
+{n}d{s}d{d}                        discard the lowest {d} dice. Then sum the 
+                                   remaining dice and return the result.
+
+Keep Highest        5d6k3          Roll {s} sided dice {n} times and keep the
+{n}d{s}k{d}                        highest {d} rolls. Then sum the values and
+                                   return the result.
+
+Reroll Low          5d6r2          Roll {s} sided dice {n} times rerolling any
+{n}d{s}r{l}                        dice that come out as {l} or lower, then
+                                   sum the dice together and return the
+                                   result.
+
+Count Successes     5d6s4          Roll {s} sided dice {n} times and count the
+{n}d{s}s{t}                        number of dice that meet the target {t}.
+
+Exploding Successes 5d6es7         Roll {s} sided dice {n} times exploding any
+{n}d{s}es{t}                       dice that has a result of {s}, and return
+                                   the dice rolls as well as the number of the
+                                   rolls that meet the target {s}.
+
+Open Dice           5d6o           Roll {s} sided dice {n} times exploding any
+{n}d{s}o                           dice that roll {s}. Then return the value
+                                   of all the rolls as well as the maximum
+                                   value rolled.
+
+Exploding Dice      5d6e           Rolls {s} sided dice {n} times exploding 
+{n}d{s}e                           any dice that rolls the maximum, then sum
+                                   all the rolls and return the value.
+
+Hero Stun Dice      5g6h           Hero Stun dice. Rolls {s} sided dice {n}
+{n}d{s}h                           keeping track of the results for hero
+                                   rolls for body damage. Where a roll of
+                                   1 = 0 body damage, a roll of {s} = 2 body 
+                                   damage and a roll in between these two 
+                                   values = 1 body damage.
+
+Hero Body Dice      5d6b           Returns the body damage from the last 
+{n}d{s}b                           Hero Stun Dice roll as long as {n} and {s}
+                                   matches the Stun Dice roll.
+
+Straight Dice Roll  5d6            Roll {s} sided dice {n} times and return 
+{n}d{s}                            the sum of the dice rolled.
+
+Fudge Dice          5df            Roll {n} fudge dice which return -1, 0, or
+{n}df                              1, sum the dice and return the value.
+
+Ubiquity Dice       5du            Roll {n} ubiquity dice which retun  0, or 1
+{n}du                              then adds all the rolls and returns the
+                                   value.
+
+Shadowrun 4 Explode 5sr4eg4        Roll {n} exploding dice for shadowun
+{n}sr4g{g}                         with {g} gremlins. Returning the results,
+                                   glitches, and critical glitches.
+
+Shadowrun 4         5sr4g4         Roll {n} dice for shadowun with {g}
+{n}sr4g{g}                         gremlins. Returning the results, glitches,
+                                   and critical glitches.
+
+===============================================================================
+
+MAPTOOL COMPARISON OPERATORS                                   *mtm-comparisons*
+
+         Operator               Meaning  
+            ==                  Equal to
+            !=                  Not Equal to
+            <                   Less Than
+            >                   Greater Than
+            <=                  Less Than or Equal to
+            >=                  Greater Than or Equal to
+            
+    Comparison operators can only be used in the if() function and 
+    [if(): ] and [while(): ] rolls. Unlike languages such as c you can not
+    use it as part of a general expression, such as [blah = 1 > 10].
+
+
+===============================================================================
+
+SPECIAL VARIABLES                                        *mtm-special-variables*
+
+Variables that have special meaning in [] and {} inline rolls.
+
+state.{name}
+    Used to query or set a token state that matches {name}. If you 
+    assign a nonzero value to this state then it is set, or a 0
+    resets the state. When querying the state it the variable returns a
+    1 if the state is set or a 0 if it is not. The special state name
+    ALL will set or reset all states when you assign a value to it.
+    
+    Examples
+        Set Dying state.  
+            state.Dying = true
+            state.Dying = 1
+         Reset Dying state.  
+            state.Dying = false
+            state.Dying = 0
+          Reset All states.  
+            state.ALL = false
+ 
+
+bar.{name}
+    Used to query or set the value of a token bar. Assigning a value
+    between 0 and 1 will change the value of the bar {name} between
+    0% and 100% full. Queriyng the variable returns a value between 0
+    and 1.
+    
+    Examples
+        Set Health bar based on HP and MaxHP  
+            bar.Health = HP/MaxHP
+        Get the current value of the Health bar  
+            health = bar.Health
+ 
+
+token.halo
+    Sets or queries the value of the halo for the token. The value is a 
+    hexadecimal string that represents the color of the halo or the string 
+    "None" if there is no halo.
+    
+    Examples
+        Set the halo to red.  
+            token.halo = "#FF0000"
+        Remove the tokens halo.  
+            token.Halo = "None"
+        Get the tokens halo.  
+            halo = token.halo
+ 
+
+token.name
+    Sets or queries the name of the token.
+    
+    Examples
+        Set the token name to Fred.  
+            token.name = "Fred"
+        Gets the tokens name.  
+            name = token.name
+ 
+
+token.gm_name
+    Sets or queries the GM name of the token. This variable can be set or
+    read only by the GM.
+    
+    Examples
+        Set the token GM name to Fred.  
+            token.gm_name = "Fred"
+        Gets the tokens GM name.  
+            name = token.gm_name
+ 
+
+token.label
+    Sets or queries the label of the token.
+    
+    Examples
+        Set the token label to Blah.  
+            token.label = "Fred"
+        Gets the tokens label.  
+            name = token.label
+ 
+
+token.visible
+    Sets or queries if the token is visible to players. If you assign an
+    non zero to this variable then the token is visible to players,
+    assigning 0 will make token invisible to current players. When reading
+    the variable it returns 1 if the token is visible to current players
+    or 0 if it is not. Only the GM can use this variable.
+    Note: This only checks the token visible flag and does not check to 
+          see if the token is on the hidden layer or obscured by fog of
+          war.
+    
+    Examples
+        Makes the token visible to players.  
+            token.visible = 1
+            token.visible = true
+        Makes the token invisible to players.  
+            token.visible = 0
+            token.visible = false
+        Gets if the token is visible to players.  
+            vis = token.visible
+ 
+
+token.init
+    Sets or queries the initiative of a token.
+    
+    Examples
+        Set tokens initiative.  
+            token.init = 10
+        Gets the tokens iniatiative.  
+            init = token.init
+ 
+
+token.initHold
+    Sets or queries if the token is on hold in the initiative panel.
+        Setting the value to non zero places the token on hold, setting it
+    to 0 removes it from hold. When querying the variable if the token
+    is on hold it will return 1, otherwise it will return 0.
+    
+    Examples
+        Put the token on hold in the initiative panel.  
+            token.initHold = 1
+            token.initHold = true
+        Remove the token from hold in the initiative panel.  
+            token.initHold = 0
+            token.initHold = false
+        Gets if the token is on hold in the initiative.  
+            onHold = token.initHold
+ 
+
+init.round
+    Sets or gets the current initiative round. Only the GM can assign
+    a value to this variable.
+    
+    Examples
+        Set the round to 12.  
+            round.init = 12
+        Get the current round.  
+            round = round.init
+ 
+
+init.current
+    Sets or gets the offset of the token in the initiative panel list with
+    initiative. The offset starts at 0, if no token has initiative then -1
+    is returned. Only the GM can use this variable.
+    
+    Examples
+        Give the initiative to the third token.  
+            init.current = 2
+        Get which token number in the list has initiative.  
+            offset = init.current
+ 
+
+roll.count 
+    Contains the counter for the loop constructs [for():], [c():], [while():],
+    [foreach():]. 
+
+    Examples  
+        [c(10): roll.count]
+       
+
+macro.args
+    Contains the arguments for macros that are called with [macro(): ].
+    
+macro.return
+    Contains the return value of a macro that is called with [macro(): ]. In
+    the macro called by [macro(): ] you can set the return value of that macro
+    with macro.return = "blah", and in the macro that calls it you can get the
+    return value with val = macro.return.
+
+    Examples 
+        Assigning a return value from within a macro called by [macro(): ]  
+            [h: macro.return = result]
+        Getting the return value from a macro that was called by [macro(): ]  
+            [h: result = macro.return]
+ 
+
+===============================================================================
+
+MAPTOOL FUNCTIONS                                                *mtm-functions*
+
+These are functions that are available within [] and {} inline rolls in
+maptool.
+
+    Bar Functions                       |mtm-func-bar|
+    Conditional Functions               |mtm-func-conditional|
+    Initiative Functions                |mtm-func-init|
+    JSON Functions                      |mtm-func-json|
+    Logic Functions                     |mtm-func-logic|
+    Mathematical Functions              |mtm-func-math|
+    Miscellaneous Functions             |mtm-func-misc|
+    State Functions                     |mtm-func-state|
+    State Functions                     |mtm-func-token|
+    String Functions                    |mtm-func-string|
+    String List Functions               |mtm-func-list|
+    String Property Functions           |mtm-func-prop|
+    Table Functions                     |mtm-func-table|
+    Token Functions                     |mtm-func-token|
+
+===============================================================================
+
+FUNCTIONS LIST                                              *mtm-function-list*
+    abort({number})                     |mtm-abort()|
+    abs({number})                       |mtm-abs()|
+    absolutevalue({number})             |mtm-absolustevalue()|
+    add({number}, {number}, ...)        |mtm-add()|
+    add({string}, {string}, ...)        |mtm-add()|
+    addAllNPCsToInitiative()            |mtm-addAllNPCsToInitiative()|
+    addAllPCsToInitiative()             |mtm-addAllPCsToInitiative()|
+    addAllToInitiative()                |mtm-addAllToInitiative()|
+    addToInitiative()                   |mtm-addToInitiative()|
+    average({number}, {number}, ...)    |mtm-average()|
+    avg({number}, {number}, ...)        |mtm-avg()|
+    band({number}, {number}, ...)       |mtm-band()|
+    bitwiseand({number}, {number}, ...) |mtm-bitwiseand()|
+    bitwisenot({number}, {number}, ...) |mtm-bitwisenot()|
+    bitwiseor({number}, {number}, ...)  |mtm-bitwiseor()|
+    bitwisexor({number}, {number}, ...) |mtm-bitwisexor()|
+    bnot({number}, {number}, ...)       |mtm-bnot()|
+    bor({number}, {number}, ...)        |mtm-bor()|
+    bxor({number}, {number}, ...)       |mtm-bxor()|
+    ceil({number})                      |mtm-ceil()|
+    ceiling({number})                   |mtm-ceiling()|
+    concat({string}, {string}, ...)     |mtm-add()|
+    countStrProp({prop})                |mtm-countStrProp()|
+    deleteStrProp({prop}, {key})        |mtm-deleteStrProp()|
+    divide({number}, {number}, ...)     |mtm-divide()|
+    floor({number})                     |mtm-floor()|
+    getBar({bar})                       |mtm-getBar()|
+    getCurrentInitiative()              |mtm-getCurrentInitiative()|
+    getGMName()                         |mtm-getGMName()|
+    getHalo()                           |mtm-getHalo()|
+    getInitiative()                     |mtm-getInitiativE()|
+    getInitiativeHold()                 |mtm-getInitiativeHold()|
+    getInitiativeRound()                |mtm-getInitiativeRound()|
+    getLabel()                          |mtm-getLabel()|
+    getName()                           |mtm-getName()|
+    getState({state})                   |mtm-getState()|
+    getStateImage({state} [, {size}])   |mtm-getStateImage()|
+    getStrProp({prop}, {key})           |mtm-getStrProp()|
+    getTokenImage([{size}])             |mtm-getTokenImage()|
+    getVisible()                        |mtm-getVisible()|
+    hex({number})                       |mtm-hex()|
+    hypot({sideA}, {sideB})             |mtm-hypot()|
+    hypotenuse({sideA}, {sideB})        |mtm-hypotenuse()|
+    if({test}, {true}, {false})         |mtm-if()|
+    indexKeyStrProp({prop}, {index})    |mtm-indexKeyStrProp()|
+    indexValueStrProp({prop}, {index})  |mtm-indexValueStrProp()|
+    initiativeSize()                    |mtm-initiativeSize()|
+    input({string}, ...)                |mtm-input()|
+    isBarVisible({name})                |mtm-isBarVisible()|
+    listAppend({list}, {value} [, {delim}]) |mtm-listAppend()|
+    listCount({list} [, {delim}])       |mtm-listCount()|
+    listDelete({list}, {index} [, {delim}]) |mtm-listDelete()|
+    listFind({list}, {value} [, {delim}]) |mtm-listFind()|
+    listGet({list}, {index} [, {delim}])|mtm-listGet()|
+    listInsert({list}, {index}, {value} [, {delim}]) |mtm-listInsert()|
+    listReplace({list}, {index}, {value} [, {delim}]) |mtm-listReplace()|
+    ln({number})                        |mtm-ln()|
+    log({number})                       |mtm-log()|
+    log10({number})                     |mtm-log10()|
+    max({number}, {number}, ...)        |mtm-max()|
+    mean({number}, {number}, ...)       |mtm-mean()|
+    median({number}, {number}, ...)     |mtm-median()|
+    min({number}, {number}, ...)        |mtm-min()|
+    multiply({number}, {number}, ...)   |mtm-multiply()|
+    nextInitiative()                    |mtm-nextInitaitve()|
+    removeAllFromInitiative()           |mtm-removeAllFromInitiative()|
+    removeAllNPCsFromInitiative()       |mtm-removeAllNPCsFromInitiative()|
+    removeAllPCsFromInitiative()        |mtm-removeAllPCsFromInitiative()|
+    removeFromInitiative()              |mtm-removeFromInitative()|
+    set({name}, {value})                |mtm-set()|
+    setAllStates({value})               |mtm-setAllStates()|
+    setBar({bar}, {value})              |mtm-setBar()|
+    setBarVisible({name}, {vis})        |mtm-setBarVisible()|
+    setCurrentInitiative({number})      |mtm-setCurrentInitiative()|
+    setGMName({name})                   |mtm-setGMName()|
+    setHalo({color})                    |mtm-setHalo()|
+    setInitiative({init})               |mtm-setInitiative()|
+    setInitiativeHold({on})             |mtm-setInitiativeHold()|
+    setInitiativeRound({number})        |mtm-setInitiativeRound()|
+    setLabel({label})                   |mtm-setLabel()|
+    setName({name})                     |mtm-setName()|
+    setState({state}, {value})          |mtm-setState()|
+    setStrProp({prop}, {key}, {value})  |mtm-setStrProp()|  
+    setVisible({vis})                   |mtm-setVisible()|
+    sortInitiative()                    |mtm-sortInitiative()|
+    sqr({number})                       |mtm-sqr()|
+    sqrt({number})                      |mtm-sqrt()|
+    square({number})                    |mtm-square()|
+    squareroot({number})                |mtm-squareroot()|
+    subtract({number})                  |mtm-subtract()|
+    sum({number}, {number}, ...)        |mtm-sum()|
+    table({table} [, {expr})            |mtm-table()|
+    tableImage({table} [, {expr} [, {size}]]) |mtm-tableImage()|
+    tbl({table} [, {expr})              |mtm-tbl()|
+    tblImage({table} [, {expr} [, {size}]]) |mtm-tblImage()|
+    varsFromStrProp({prop})             |mtm-varsFromStrProp()|
+
+===============================================================================
+
+FUNCTIONS BY TOPIC                                         *mtm-function-topic*
+
+
+                                                                 *mtm-func-bar*
+Bar Functions  
+    Function                            Link  
+    getBar({bar})                      |mtm-getBar()|
+    setBar({bar}, {value})             |mtm-setBar()|
+    isBarVisible({name})               |mtm-isBarVisible()|
+    setBarVisible({name}, {vis})       |mtm-setBarVisible()|
+
+                                                         *mtm-func-conditional*
+Conditional Functions  
+    Function                  Link  
+    if({test}, {true}, {false})         |mtm-if()|
+-------------------------------------------------------------------------------
+
+                                                            *mtm-func-init*
+Initiative Functions   
+    Function                         Link  
+    addAllNPCsToInitiative()        |mtm-addAllNPCsToInitiative()|
+    addAllPCsToInitiative()         |mtm-addAllPCsToInitiative()|
+    addAllToInitiative()            |mtm-addAllToInitiative()|
+    addToInitiative()               |mtm-addToInitiative()|
+    getCurrentInitiative()          |mtm-getCurrentInitiative()|
+    getInitiativeRound()            |mtm-getInitiativeRound()|
+    initiativeSize()                |mtm-initiativeSize()|
+    nextInitiative()                |mtm-nextInitaitve()|
+    removeAllFromInitiative()       |mtm-removeAllFromInitiative()|
+    removeAllNPCsFromInitiative()   |mtm-removeAllNPCsFromInitiative()|
+    removeAllPCsFromInitiative()    |mtm-removeAllPCsFromInitiative()|
+    setCurrentInitiative({number})  |mtm-setCurrentInitiative()|
+    setInitiativeRound({number})    |mtm-setInitiativeRound()|
+    sortInitiative()                |mtm-sortInitiative()|
+    setInitiative({init})           |mtm-setInitiative()|
+    getInitiative()                 |mtm-setInitiative()|
+    setInitiativeHold({on})         |mtm-setInitiativeHold()|
+    getInitiativeHold()             |mtm-getInitiativeHold()|
+    removeFromInitiative()          |mtm-removeFromInitative()|
+-------------------------------------------------------------------------------
+
+                                                                *mtm-func-json*
+JSON Functions  
+    Function                                           Link  
+    json.append({jarr}, {value} [, {value} ...])      |mtm-json.append()|
+    json.contains({jarr}, {value})                    |mtm-json.contains()|
+    json.contains({jobj}, {key})
+    json.count({jarr}, {value} [, {start}])           |mtm-json.count()|
+    json.difference({jarr}, {jarr} [, {jarr} ...])    |mtm-json.difference()|
+    json.difference({jobj}, {jobj} [, {jobj} ...])
+    json.equals({jarr}, {jarr})                       |mtm-json.equals()|
+    json.equals({jobj}, {jobj})
+    json.evaluate({jarr})                             |mtm-json.evaluate()|
+    json.evaluate({jobj})
+    json.fields({jarr} [, {delim}])                   |mtm-json.fields()|
+    json.fields({jobj} [, {delim}])
+    json.fromList({strList} [, {delim}])              |mtm-json.fromList()|
+    json.fromStrProp({strProp})                       |mtm-json.fromStrProp()|
+    json.get({jarr}, {start} [, {end}])               |mtm-json.get()|
+    json.get({jobj}, {key} [, {key}])
+    json.indent({jobj} [, {spaces}])                  |mtm-json.indent()|
+    json.indexOf({jarr}, {value} [, {start}])         |mtm-json.indexOf()|
+    json.intersection({jarr} [, {jarr} ...])          |mtm-json.intersection()|
+    json.intersection({jobj} [, {jobj} ...])
+    json.isEmpty({jarr})                              |mtm-json.isEmpty()|
+    json.isEmpty({jobj})
+    json.isEmpty({str})
+    json.length({jarr})                               |mtm-json.length()|
+    json.length({jobj})
+    json.merge({jarr}, {jarr} [, {jarr} ...])         |mtm-json.merge()|
+    json.merge({jobj}, {jobj} [, {jobj} ...])
+    json.remove({jarr}, {index})                      |mtm-json.remove()|
+    json.remove({jobj}, {key})
+    json.removeAll({jarr}, {jarr} [, {jarr} ...])     |mtm-json.removeAll()|
+    json.removeAll({jobj}, {jobj} [, {jobj} ...])
+    json.reverse({jarr})                              |mtm-json.reverse()|
+    json.set({jarr}, {index}, {value} [, ...])        |mtm-json.set()|
+    json.set({jobj}, {key}, {value} [, ...])
+    json.shuffle({jarr})                              |mtm-json.shuffle()|
+    json.sort({jarr} [, {direction} [, {key} ...]])   |mtm-json.sort()|
+    json.subset({jarr}, {jarr} [, {jarr} ...])        |mtm-json.subset()|
+    json.subset({jobj}, {jobj} [, {jobj} ...])
+    json.toList({jarr} [, {delim}])                   |mtm-json.toList()|
+    json.toStrProp({jobj} [, {delim}])                |mtm-json.toStrProp()|
+    json.type({any})                                  |mtm-json.type()|
+    json.union({jarr}, {jarr} [, {jarr} ...])         |mtm-json.union()|
+    json.union({jobj}, {jobj} [, {jobj} ...])
+    json.unique({jarr})                               |mtm-json.unique()|
+-------------------------------------------------------------------------------
+
+                                                               *mtm-func-logic*
+Logic Functions  
+    Function                            Link  
+    band({number}, {number}, ...)      |mtm-band()|
+    bitwiseand({number}, {number}, ...)|mtm-bitwiseand()|
+    bitwisenot({number}, {number}, ...)|mtm-bitwisenot()|
+    bitwisexor({number}, {number}, ...)|mtm-bitwisexor()|
+    bnot({number}, {number}, ...)      |mtm-bnot()|
+    bor({number}, {number}, ...)       |mtm-bor()|
+    bxor({number}, {number}, ...)      |mtm-bxor()|
+    bitwiseor({number}, {number}, ...) |mtm-bitwiseor()|
+-------------------------------------------------------------------------------
+
+                                                                *mtm-func-math*
+Mathematical Functions   
+    Function                            Link  
+    abs({number})                      |mtm-abs()|
+    absolutevalue({number})            |mtm-absolustevalue()|
+    add({number}, {number}, ...)       |mtm-add()|
+    average({number}, {number}, ...)   |mtm-average()|
+    avg({number}, {number}, ...)       |mtm-avg()|
+    ceil({number})                     |mtm-ceil()|
+    ceiling({number})                  |mtm-ceiling()|
+    divide({number}, {number}, ...)    |mtm-divide()|
+    floor({number})                    |mtm-floor()|
+    hypot({sideA}, {sideB})            |mtm-hypot()|
+    hypotenuse({sideA}, {sideB})       |mtm-hypotenuse()|
+    ln({number})                       |mtm-ln()|
+    log({number})                      |mtm-log()|
+    log10({number})                    |mtm-log10()|
+    max({number}, {number}, ...)       |mtm-max()|
+    mean({number}, {number}, ...)      |mtm-mean()|
+    median({number}, {number}, ...)    |mtm-median()|
+    min({number}, {number}, ...)       |mtm-min()|
+    multiply({number}, {number}, ...)  |mtm-multiply()|
+    sqr({number})                      |mtm-sqr()|
+    sqrt({number})                     |mtm-sqrt()|
+    square({number})                   |mtm-square()|
+    squareroot({number})               |mtm-squareroot()|
+    subtract({number})                 |mtm-subtract()|
+    sum({number}, {number}, ...)       |mtm-sum()|
+-------------------------------------------------------------------------------
+
+                                                                *mtm-func-misc*
+Miscellaneous Functions   
+    Function                    Link  
+    set({name}, {value})       |mtm-set()|
+    hex({number})              |mtm-hex()|
+    abort({number})            |mtm-abort()|
+-------------------------------------------------------------------------------
+
+
+                                                               *mtm-func-state*
+State Functions  
+    Function                            Link  
+    getState({state})                  |mtm-getState()|
+    getStateImage({state} [, {size}])  |mtm-getStateImage()|
+    setAllStates({value})              |mtm-setAllStates()|
+    setState({state}, {value})         |mtm-setState()|
+-------------------------------------------------------------------------------
+
+                                                              *mtm-func-string*
+String Functions  
+    Function                              Link  
+    add({string}, {string}, ...)         |mtm-add()|
+    concat({string}, {string}, ...)      |mtm-add()|
+-------------------------------------------------------------------------------
+                                                              *mtm-func-list*
+String List Functions  
+    Function                                           Link  
+    listAppend({list}, {value} [, {delim}])           |mtm-listAppend()|
+    listCount({list} [, {delim}])                     |mtm-listCount()|
+    listDelete({list}, {index} [, {delim}])           |mtm-listDelete()|
+    listFind({list}, {value} [, {delim}])             |mtm-listFind()|
+    listGet({list}, {index} [, {delim}])              |mtm-listGet()|
+    listInsert({list}, {index}, {value} [, {delim}])  |mtm-listInsert()|
+    listReplace({list}, {index}, {value} [, {delim}]) |mtm-listReplace()|
+-------------------------------------------------------------------------------
+                                                                 *mtm-func-prop*
+String Property Functions  
+    Function                             Link  
+    countStrProp({prop})                |mtm-countStrProp()|
+    deleteStrProp({prop}, {key})        |mtm-deleteStrProp()|
+    getStrProp({prop}, {key})           |mtm-getStrProp()|
+    indexKeyStrProp({prop}, {index})    |mtm-indexKeyStrProp()|
+    indexValueStrProp({prop}, {index})  |mtm-indexValueStrProp()|
+    setStrProp({prop}, {key}, {value})  |mtm-setStrProp()|  
+    varsFromStrProp({prop})             |mtm-varsFromStrProp()|
+-------------------------------------------------------------------------------
+
+                                                                *mtm-func-table*
+Table Fuctions   
+    Function                                       Link  
+    table({table} [, {expr})                      |mtm-table()|
+    tableImage({table} [, {expr} [, {size}]])     |mtm-tableImage()|
+    tbl({table} [, {expr})                        |mtm-tbl()|
+    tblImage({table} [, {expr} [, {size}]])       |mtm-tblImage()|
+-------------------------------------------------------------------------------
+                                                                *mtm-func-token*
+Token Functions  
+    Function                     Link  
+    getHalo()                   |mtm-getHalo()|
+    getGMName()                 |mtm-getGMName()|
+    getTokenImage([{size}])     |mtm-getTokenImage()|
+    setHalo({color})            |mtm-setHalo()|
+    getLabel()                  |mtm-getLabel()| 
+    setLabel({label})           |mtm-setLabel()|
+    getName()                   |mtm-getName()|
+    setName({name})             |mtm-setName()|
+    getState({state})           |mtm-getState()|
+    setState({state}, {value})  |mtm-setState()|
+    setAllStates({value})       |mtm-setAllStates()|
+    setVisible({vis})           |mtm-setVisible()|
+    getVisible()                |mtm-getVisible()|
+    input({string}, ...)        |mtm-input()|
+
+===============================================================================
+
+MAPTOOL FUNCTION DETAILS                                  *mtm-function-details*
+
+                           *mtm-abs()* *mtm-absolutevalue()*
+abs({number}) 
+absolutevalue({number})
+    Returns the absolute value of {number}. The absolute value of a number 
+    is the number without the sign.
+    
+    Examples  
+        [r: abs(-3)]
+            => 3  
+        [r: abs(4)] 
+            => 4
+
+                                 *mtm-add()* *mtm-sum()*
+add({number}, {number}, ...) 
+sum({number}, {number}, ...) 
+    Sums together all the {number} arguments.
+    
+    Examples  
+        [r: add(3, 4, 6, 8)]
+            => 21  
+        [r: add(5, 6, 15)]
+            => 26
+
+                                    *mtm-ceil()*
+ceil({number})
+ceiling({number})
+    Returns {number} if it is an integer, otherwise it returns {number}
+    rounded up to the next highest integer.
+    
+    Examples  
+        [r: ceil(10)]
+            => 10  
+        [r: ceil(1.2)]
+            => 2  
+        [r: ceil(-1.2)]
+            => -1
+
+
+                                  *mtm-divide()*
+divide({number}, {number}, ...)
+    Divides the first {number} by the second {number}, and then divides
+    the result by the third {number} (if it exists) and so on for all the
+    arguments.
+    
+    Examples  
+        [r: divide(4, 2)]
+            => 2  
+        [r: divide(24, 2, 2)]
+            => 6
+
+
+
+                                       *mtm-floor()*
+floor({number})
+    If {number} is an intger then it is returned, otherwise {number}
+    rounded down to the nearest smaller integer is returned.
+    
+    Examples  
+        [r: floor(2)] 
+            => 2  
+        [r: floor(2.9)] 
+            => 2  
+        [r: floor(-2.1)] 
+            => -3
+
+
+                            *mtm-hypotenuse()* *mtm-hypot()*
+hypotenuse({sideA}, {sideB})
+hypot({sideA}, {sideB})
+    Returns the hypotenuse of a triangle whos other two sides have a 
+    length of {sideA} and {sideB}. The formula used to calculate the
+    hypotnese is, h^2 = sideA^2 * sideB^2.
+    
+    Examples  
+        [r: hypot(3,4)]
+            => 5
+
+ 
+
+                                         *mtm-ln()*
+ln({number})
+    Returns the the natural logarithm of {number}.
+    
+    Examples  
+        [r: ln(5)]
+            => 1.6094379124341002817999424223671667277812957763671875
+
+
+                              *mtm-log()* *mtm-log10()*
+log({number})
+log10({number})
+    Returns the the base 10 logarithm of {number}.
+    
+    Examples  
+        [r: log(100)]
+            => 2  
+        [r: log(1000)]
+            => 3
+
+                                         *mtm-max()*
+max({number}, {number}, ...)
+    Returns the highest {number} that is passed in.
+    
+    Examples  
+        [r: max(2, 30, 4, 7)]
+            => 30  
+        [r: max(-2, -40, -100)]
+            => -2
+
+
+                                        *mtm-avg()* *mtm-average()* *mtm-mean()*
+mean({number}, {number}, ...)
+avg({number}, {number}, ...)
+average({number}, {number}, ...)
+    Returns the average (mean) of the {number}s passed in.
+    
+    Examples  
+        [r: avg(1, 2, 3, 3, 10)]
+            => 3.8
+
+
+                                                                  *mtm-median()*
+median({number}, {number}, ...)
+    Returns the median of the {number}s passed in. The median value is the
+    value where half the numbers in the list are higher or eqaul to it and 
+    the other half are lower or equal to it. The median is caluclated by 
+    sorting the list of numbers and picking the middle number if the list
+    has an odd amount or averaging the two in the middle if there is an 
+    even amount. 
+    
+    Examples  
+        [r: median(3,6,2,2)]
+            => 2.5  
+        [r: median(12, 23, 3, 102, 1)]
+            => 12
+
+
+                                                                     *mtm-min()*
+min({number}, {number}, ...)
+    Returns the smallest {number} in the parameter list.
+    
+    Examples  
+        [r: min(2,4,5,1)]
+            => 1  
+        [r: min(-1, -5, 100)]
+            => -5
+
+
+                                                                *mtm-multiply()*
+multiply({number}, {number}, ...)
+    Returns the {number}s multiplied together.
+    
+    Examples  
+        [r: multiply(2, 5, 6)]
+            => 30  
+        [r: multiply(4, 3, 2)]
+            => 24
+
+                                                      *mtm-square()* *mtm-sqr()*
+square({number})
+sqr({number})
+    Returns the square of a number. 
+    
+    Examples  
+        [r: square(5)]
+            => 25  
+        [r: square(4)]
+            => 16
+
+                                                       *mtm-pow()* *mtm-power()*
+power({base}, {exponent})
+pow({base}, {exponent})
+factor({base}, {exponent})
+    Returns {base} raised to the power of {exponent}.
+    
+    Examples  
+        [r: pow(2, 3)]
+            => 8
+
+
+                                                 *mtm-sqrt()* *mtm-squareroot()*
+sqrt({number})
+squareroot({number})
+    Returns the squareroot of {number}. 
+    
+    Examples  
+        [r: sqrt(4)]
+            => 2  
+        [r: sqrt(25)]
+            => 5
+
+                                                                *mtm-subtract()*
+subract({number}, {number}, ...)
+    Subtracts the second {number} from the first {number}. Then will
+    continue by subtracting the third {number} (if any from this result),
+    the function continues subtracting until all {number} arguments are 
+    exhausted.
+    
+    Examples  
+        [r: subtract(10, 2, 4)] 
+            => 4  
+        [r: subtract(9, 10, 3)]
+            => -4
+
+
+
+
+
+                                                      *mtm-addAllToInitiative()*
+addAllToInitiative()
+    Adds all the tokens on the current map to the initiative panel. You
+    must be the GM to call this function. The function returns the number
+    of tokens that were added to the initiative.
+    
+    Examples  
+        [h: addAllToInitiative()]
+ 
+
+                                                  *mtm-addAllPCsToInitiative()*
+addAllPCsToInitiative()
+    Adds all the PC tokens on the current map to the initiative panel. You
+    must be the GM to call this function. The function returns the number
+    of tokens that were added to the initiative.
+    
+    Examples  
+        [h: addAllPCsToInitiative()]
+ 
+
+                                                 *mtm-addAllNPCsToInitiative()*
+addAllNPCsToInitiative()
+    Adds all the NPC tokens on the current map to the initiative panel. You
+    must be the GM to call this function. The function returns the number
+    of tokens that were added to the initiative.
+    
+    Examples  
+        [h: addAllNPCsToInitiative()]
+ 
+
+
+                               *mtm-getCurrentInitiative()*
+getCurrentInitiative()
+    Gets the offset of the token in the initiative list that has the 
+    initiative. The offset starts at 0. If no token has initiative then
+    -1 is returned. Only the GM can call this function.
+    
+    Examples 
+        Get the offset of the token with initiative  
+        [h: offset = getCurrentInitiative()]
+ 
+
+                                                   *mtm-setCurrentInitiative()*
+setCurrentInitiative({offset})
+    Gives the initiative to the token that is at {offset} in the 
+    initaitive list. Offsets for tokens in the list start at 0. Only the
+    GM can call this function.
+    
+    Examples 
+        Give initiative to first token in the list  
+        [h: setCurrentInitiative(0)]
+ 
+
+
+                                                     *mtm-getInitiativeRound()*
+getInitiativeRound()
+    Gets the current round number from the initiative panel.
+    
+    Examples  
+        [r: "Current round number is " + getInitiativeRound()]
+ 
+
+                             *mtm-setInitiativeRound()*
+setInitiativeRound()
+    Sets the current round number in the initiative panel. Only the GM can
+    call this function.
+    
+    Examples
+        Set the Round number to 10  
+        [r: setInitiativeRound(10)]
+ 
+
+                                                         *mtm-nextInitiative()*
+nextInitiative()
+    Advances the initiative to the next token in the list. Only the GM or
+    the owner of the token that currently has the initiative can call this
+    function. This function returns the offset into the initiative list
+    (starting at 0) of the token that will get the initiative.
+    
+    Examples  
+        [h: nextInitiative()]
+ 
+
+                                                         *mtm-sortInitiative()*
+sortInitiative()
+    Sorts the initiative panel list based on the tokens initaitive.
+    Only the GM can call this function. This function returns the number
+    of tokens in the initiative list.
+    
+    Examples  
+        [h: sortInitiative()]
+ 
+
+                                                         *mtm-initiativeSize()*
+intiativeSize()
+    Gets the number of tokens in the initiative list. Only the GM can call
+    this function.
+    
+    Examples  
+        [r: "The number of tokens in list is " + initiativeSize()]
+ 
+
+
+                                                *mtm-removeAllFromInitiative()*
+removeAllFromInitiative()
+    Removes all of the tokens from the initiative list. This function 
+    returns the number of tokens that were removed. Only the GM can call
+    this function.
+    
+    Examples  
+        [h: removeAllFromInitiative()]
+ 
+
+                                             *mtm-removeAllPCsFromInitiative()*
+removeAllPCsFromInitiative()
+    Removes all of the PC tokens from the initiative list. This function 
+    returns the number of tokens that were removed. Only the GM can call
+    this function.
+    
+    Examples  
+        [h: removeAllPCsFromInitiative()]
+ 
+
+                                            *mtm-removeAllNPCsFromInitiative()*
+removeAllNPCsFromInitiative()
+    Removes all of the NPC tokens from the initiative list. This function 
+    returns the number of tokens that were removed. Only the GM can call
+    this function.
+    
+    Examples  
+        [h: removeAllNPCsFromInitiative()]
+ 
+
+                                                         *mtm-addToInitiative()*
+addToInitiative()
+    Adds the token to the iniatiative panel.
+
+    Examples  
+        [r: addToIniatitive()]
+ 
+
+                                                           *mtm-setInitiative()*
+setInitiative({init})
+    Sets the initiative value of the token to {init}.
+
+    Examples  
+        [h: setInitative(1d20)]
+ 
+
+                                                           *mtm-getInitiative()*
+getInitiative()
+    Gets the initiative value of the token.
+    
+    Examples  
+        [r: "Your initiative is " + getInitiative()]
+ 
+
+                                                       *mtm-setInitiativeHold()*
+setInitiativeHold({on})
+    Sets if the token is on hold in the initiative list or not. If {on} is non
+    zero then the token is put on hold in the initiative list, otherwise it is
+    taken off hold.
+
+    Examples
+        Put a Token on hold in initiative.  
+            [h: setInitiativeHold(true)]
+            [h: setInitiativeHold(1)]
+        Remove a Token from hold in initiative.  
+            [h: setInitiativeHold(false)]
+            [h: setInitiativeHole(0)]
+ 
+
+                                                       *mtm-getInitiativeHold()*
+getInitiativeHold()
+    Gets if the token is on hold in the initiative list. This function returns
+    1 if the token is on hold or 0 if it is not on hold.
+
+    Examples  
+        [r: if(getInitiativeHold(), "You are on hold!", "")]
+ 
+
+                                                    *mtm-removeFromInitiative()*
+removeFromInitiative()
+    Removes the token from the initative panel.
+    
+    Examples  
+        [h: removeFromInitiative()]
+ 
+
+                                                       *mtm-table()* *mtm-tbl()*
+table({table} [, {expr}])
+tbl({table} [, {expr}])
+    Gets the text from the table called {table}. If {expr} is not
+    specified then the default roll for the table is used to determine
+    which value is returned, otherwise {expr} is evaluated to determine
+    the value to return from the table.
+    
+    Examples
+        Display a random value from table "tbl1" using default roll.  
+        [r: table("tbl1")]
+        Display the first value from table "tbl1".  
+        [r: table("tbl1", 1)]
+        Display one of the first 4 values from "tbl1" chosen randomly.  
+        [r: table("tbl1, 1d4)]
+ 
+
+                                            *mtm-tableImage()* *mtm-tblImage()*
+
+tableImage({table} [, {expr} [,{size}]])
+tblImage({table} [, {expr} [,{size}]])
+    Gets the image asset from the table called {table}. If {expr} is not
+    specified then the default roll for the table is used to determine
+    which value is returned, otherwise {expr} is evaluated to determine
+    the value to return from the table. If {size} is specified then 
+    the image is resized to that height.
+
+    Examples
+        Display a random image from table "tbl1" using default roll.  
+        <image src='[r: table("tbl1")]'></image>
+        Display the first image from table "tbl1".  
+        <image src='[r: table("tbl1", 1)]'></image>
+         Display one of the first 4 images resized to 40 pixels high from 
+        "tbl1" chosed randomly.  
+        <image src='[r: table("tbl1, 1d4, 40)]'></image>
+ 
+
+
+                            *mtm-band()* *mtm-bitwiseand()*
+band({number}, {number}, ...)
+bitwiseand({number}, {number}, ...)
+    Performs a bitwise 'and' operation of the {number} arguments by taking 
+    the binary representation of each of the numbers and performing the 
+    logical and operation on each of the bits.
+
+     Logical 'and' table
+        Bit1  Bit2   Result  
+          0    0       0
+          0    1       0
+          1    0       0
+          1    1       1
+    
+    Examples  
+        [r: band(1,0)]
+            => 0  
+        [r: band(1,1)]
+            => 1  
+        [r: band(3, 5]
+            => 1
+                3 in binary is 011 and 5 in binary is 101, the bitwise 'and'
+                of these values is 001 in binary which is 1 in decimal.  
+        [r: band(20, 12)]
+            => 4
+                20 in binary is 10100 and 12 in binary is 01100, the bitwise
+                'and' of these values is 00100 in binary which is 4 in decimal.
+
+                        *mtm-bnot()* *mtm-bitwisenot()*
+bnot({number})
+bitwistenot({number})
+    Performs a bitwise 'not' operation of the {number}. A bitwise not is
+    performed by taking the binary representaion of the {number} and 
+    performing a logical 'not' operation on each of these bits.
+
+    Logical 'not' table of a single bit
+        Bit    Result  
+         0       1
+         1       0
+    
+    Unfortionately its not quite as simple as the table above makes it 
+    appear since number are a string of 32 (or more bits) so a 1 in 
+    binary is actually a 00000000000000000000000000000001 and a 0 is 
+    actually a 00000000000000000000000000000000 so the table is now.
+
+        bnot of binary 00000000000000000000000000000000
+                is             11111111111111111111111111111111
+        which is -1 in decimal
+
+        bnot of binary 00000000000000000000000000000001 
+        is             11111111111111111111111111111110
+        which is -2 in decimal
+
+    If you are unsure why the results are negative look read the
+    following link http://en.wikipedia.org/wiki/Twos_complement
+
+    Examples  
+        [r: bnot(1)]
+            => -2  
+        [r: bnot(0)] 
+            => -1  
+        [r: bnot(12)]
+ 
+
+                                                  *mtm-bor()* *mtm-bitwiseor()*
+bor({number}, {number}, ...)
+bitwiseor({number}, {number}, ...)
+    Performs a bitwise 'or' operation of the {number} arguments. A bitwise
+    or is performed by taking the binary representation of the {number}s 
+    and perfroming a logical 'or' on each of those bits.
+
+    Logical 'or' table.
+        Bit1 Bit2 Result  
+          0   0     0
+          0   1     1
+          1   0     1
+          1   1     1
+
+    Examples  
+        [r: bor(1, 0)] 
+            => 1  
+        [r: bor(0, 0)] 
+            => 0  
+        [r: bor(1, 1)]
+            => 1  
+        [r: bor(2, 4)]
+            => 6
+                2 in binary is 010 and 4 in binary is 100, so a bitwise or of
+                these         two values is 110 which is 6 in decimal.
+
+
+                            *mtm-bxor()* *mtm-bitwisexor()*
+bxor({number}, {number}, ...)
+bitwisexor({number}, {number}, ...)
+    Performs a bitwise exclusive or 'xor' operation of the {number}
+    arguments. A bitwise xor is performed by taking the binrary
+    representation of the {number}s and perfroming a logical 'xor' on
+    each of those bits.
+
+    Logical 'xor' table.
+        Bit1 Bit2 Result  
+          0    0    0
+          0    1    1
+          1    0    1
+          1    1    0
+
+    Examples  
+        [r: bxor(1, 0)]
+            => 1  
+        [r: bxor(1, 1)]
+            => 0  
+        [r: bxor(2, 4)]
+            => 6  
+        [r: bxor(6,4)]
+            => 2
+
+
+                                                                     *mtm-if()*
+if({test}, {true}, {false})
+    If the result of {test} is true (non zero) then the result of the 
+    evaluated {true} expression is returned, otherwise the result of the
+    evaluated {false} expression is returned. Both the {true} and {false}
+    expressions are simple expressions and can not contain variable
+    assignments (although they can call the set (|mtm-set()|) function,
+    but see the below note for why you probably should not do so.
+    See |mtm-comparisons| for details of the comparison operators.
+
+    Note: It is important to keep in mind that both {true} and {false} 
+          expressions are always evaluated, so you should not use any 
+              functions that have side affects. 
+
+    Examples  
+        [r: if(1 < 2, "Test", "Blah")]
+            => Test  
+        [h: a = 10][h: b = 20][r: if(1==2, a, b)] 
+            => 20
+
+
+
+
+                                              *mtm-concat()*
+
+add({string}, {string}, ...)
+concat({string}, {string}, ...)
+    Concatenates the {string} arguments together.
+    
+    Examples  
+        [r: add("this","is","a","test")]
+            => thisisatest  
+        [r: concat("another ", "test")]
+            => another test
+
+
+
+                                     *mtm-set()*
+set({name}, {value})
+    Sets the variable {name} to equal {value}.
+    
+    Examples  
+        [h: set("Test", 2)] [r: Test]
+            => 2  
+        [h: val = 2] [h: set("Weapon"+val, "Sword")] [r: Weapon2]
+            => Sword
+
+                                    *mtm-eval()*
+eval({expr})
+    Evaluates and "executes" {expr} and returns the result. {exr} contains 
+    the same type of expression that is between {} or [r: ]
+    
+    Examples  
+        [r: eval("1+1")]
+            => 2  
+        [r: eval("3d1")]
+            => 3  
+        [h: eval("blah = 2")] [r: blah]
+            => 2  
+        [h:blah = 2] [r: eval("blah/2")]
+            => 1
+
+
+                                                                     *mtm-hex()*
+hex({number})
+    Returns a string which contains the hexadecimal representation of 
+    {number}.
+    
+    Examples  
+        [r: hex(23)]
+            => 0x17  
+        [r: hex(10)]
+            => 0xA
+
+
+                                                                   *mtm-abort()*
+abort({result})
+    Terminates processing of macro and discards all output generated if 
+    {result} is 0. This function is generally used to abort the processing
+    of a macro if the cancel button is pressed on dialogs created with the
+    input() (|mtm-input()|)function. It can also be used at the end of a 
+    macro to discard any output.
+    
+    Examples 
+        The following example will create a dialog box for the user to enter
+        a value for blah, if the user clicks on cancel then res will be 0 
+        so the abort() function will cause the macro to terminate, otherwise 
+        res will not be 0 so the macro will continue  
+        [h: res = input("blah")] [h: abort(res)]
+ 
+        Discards any output in the macro, any properties set before the abort
+        will contain the values you set them to. That is abort(0) will not
+        undo any changes you made.  
+        [Hah! you will never see this!] [abort(0)]
+ 
+
+                                                           *mtm-getStateImage()*
+geStateImage({state} [, {size}])
+    Gets the image asset for {state}. {state} must be an image sate or 
+    an error will occur. If {size} is specified then the image will be
+    resized.
+
+    Examples  
+        <image src='[r: getStateImage("Dead",20)]'></img>
+ 
+                                                                 *mtm-listGet()*
+listGet({list}, {index} [, {delim}])
+    Gets the item at {index} from the list {list}. The index of the first
+    item in the list is 0. {delim} is the list delimiter that is used to 
+    separate the items in the list, if it is not specified then the 
+    default value of ',' is used.
+
+    Examples  
+        [r: listGet("This, is, a , test", 2)]
+            => a  
+        [r: listGet("This: is: a :test", 1, ":")] 
+            => is
+
+                                                              *mtm-listDelete()*
+listDelete({list}, {index} [, {delim}])
+    Returns the {list} with the item at {index} removed. List indexes 
+    start at 0, and the list is delimited by {delim}, if {delim} is 
+    not specified then the default delimiter ',' is used.
+    
+    Examples  
+        [r: listDelete("This, is, a, test", 1)] 
+            => This, a, test
+
+                                                               *mtm-listCount()*
+listCount({list} [, {delim}])
+    Returns the number of items in {list}. {delim} is used as the 
+    delimiter of the list, if {delim} is not specifid then the default
+    value of ',' is used.
+    
+    Examples  
+        [r: listCount("This, is, a, test")]
+            => 4  
+        [r: listCount("This: is: a: test")] 
+            => 4
+
+                                                                *mtm-listFind()*
+listFind({list}, {value} [, {delim}])
+    Returns the index of {value} in {list}. {delim} is the delimiter of 
+    the list, if {delim} is not specified then the default value of ','
+    is used. List indexes start at 0, if {value} is not found then -1 is
+    returned.
+
+    Examples  
+        [r: listFind("This, is, a, test", "is")]
+            => 1   
+        [r: listFind("This: is: a: test", "a", ":")]
+            => 2  
+        [r: listFind("This, is, a, test", "not")]
+            => -1
+
+                                                              *mtm-listAppend()*
+listAppend({list}, {value} [, {delim}])
+    Returns a list with {value} appended to the end of {list} using {delim} 
+    as the delimiter.  If {delim} is not specified then the default value 
+    of ',' is used.
+
+    Examples  
+        [r: listAppend("This, is, a", "test")]
+            => This, is, a, test  
+        [r: listAppend("This: is: a:", "test", ":")] 
+            => This: is: a: test
+    
+                                                              *mtm-listInsert()*
+listInsert({list}, {index}, {value} [, {delim}])
+    Inserts a {value} into the {list} at {index}, using {delim} as the 
+    list delimiter, if {delim} is not specified then the default value
+    of ',' is used. The index for lists starts at 0
+
+    Examples  
+        [r: listInsert("This, a, test", 1, "is")]
+            => This, is, a, test  
+        [r: listInsert("This: a: test", 1, "is", ":")]
+ 
+
+                                                             *mtm-listReplace()*
+listReplace({list}, {index}, {value} [, {delim}])
+    Returns the {list} with the item at {index} replaced with {value}. 
+    {delim} is the list delimeter, if it is not specified then the 
+    default value of ',' is used. List indexes start at 0.
+
+    Examples  
+        [r: listReplace("This, is, one, test", 2, "a")]
+            => This, is, a, test  
+        [r: listReplace("This: is: one: test", 2, "a", ":")]
+            => This: is: a: test
+
+                                                              *mtm-getStrProp()*
+getStrProp({prop}, {key})
+    Returns the value for {key} in the property list {prop}.
+    
+    Examples  
+        [r: geStrProp("a=blah; b=doh; c=meh", "a")]
+            => blah 
+
+                                                              *mtm-setStrProp()*
+setStrProp({prop}, {key}, {value})
+    Returns a property string {prop} with the {key} set to {value}.
+    
+    Examples  
+        [r: setStrProp("a=blah; b=doh; c=meh", "a", "yay!")]
+            => a=yay!; b=doh; c=meh  
+        [r: setStrProp("a=blah; b=doh; c=meh", "d", "yay!")]
+            => a=yay!; b=doh; c=meh; d=yay!
+
+                                                           *mtm-deleteStrProp()* 
+deleteStrProp({prop}, {key})
+    Returns the property string {prop} with the {key} removed.
+
+    Examples  
+        [r: deleteStrProp("a=blah; b=doh; c=meh", "a")] 
+            => b=doh; c=meh
+
+                                                         *mtm-varsFromStrProp()*
+varsFromStrProp({prop})
+    Creates variables from the {prop} string property keys and assign the
+    values for the keys. This function returns the number of variables 
+    that were created.
+
+    Examples  
+        [h: varFromStrProp("a=blah; b=doh; c=meh")][r: a] [r: b] [r: c]
+            => blah doh meh
+
+                                                            *mtm-countStrProp()*
+countStrProp({prop})
+    Returns the number of keys in the {prop} property list.
+
+    Examples  
+        [r: countStrProp("a=blah; b=doh; c=meh")]
+            => 3
+
+                                                         *mtm-indexKeyStrProp()*
+indexKeyStrProp({prop}, {index})
+    Returns the key from the {prop} property list at {index}. The index for 
+    the property list start at 0.
+    
+    Examples  
+        [r: indexKeyStrProp("a=blah; b=doh; c=meh", 1)]
+            => b
+
+                                                       *mtm-indexValyeStrProp()*
+indexValueStProp({prop}, {index})
+    Returns the value from the {prop} property list at {index}. The index 
+    for the property list start at 0.
+    
+    Examples  
+        [r: indexValueStrProp("a=blah; b=doh; c=meh", 1)]
+            => doh
+
+                                                                  *mtm-getBar()*
+getBar({bar})
+    Gets the value of {bar}. The value returned is between 0 and 1.
+
+    Examples  
+        [h: healthPct =  getBar("Health") * 100]
+ 
+                                                                  *mtm-setBar()*
+setBar({bar}, {value})
+    Sets the value of {bar} to {value}. {value} should be between 0 and 1
+    for 0% to 100% respectively.
+
+    Examples  
+        [h: setBar("Health", HP/MaxHP)}
+ 
+                                                               *mtm-getGMName()*
+getGMName()
+    Returns the GM name of the token. This is a GM only function.
+    
+    Examples  
+        [r: getGMName()]
+  
+                                                               *mtm-setGMName()*
+setGMName({name})
+    Sets the GM name of the token. This is a GM only function.
+    
+    Examples  
+        [h: setGMName("Fred")]
+ 
+
+                                                                 *mtm-getHalo()*
+getHalo()
+    Returns a string with the hexadecimal representation of the tokens
+    halo. If there is no halo set then the string "None" is returned.
+    The format of the string returned is #{RR}{GG}{BB}.
+    
+    Examples  
+        <span style="color:[r: getHalo()]">Halo Color Text</span>
+ 
+                                                                 *mtm-setHalo()*
+setHalo({color})
+    Sets the color of the token's halo. If {color} is the string "None" then
+    the token's halo is removed. Otherwise {color} is a hexadecimal string in
+    the format of "#{RR}{GG}{BB}". 
+
+    Examples
+        Set the tokens Halo to red.  
+            [h: setHalo("#FF0000")]
+        Set the tokens Halo to blue.  
+            [h: setHalo("#0000FF")]
+        Remove the tokens Halo.  
+            [h: setHalo("None')]
+ 
+                                                           *mtm-getTokenImage()*
+getTokenImage([{size}])
+    Gets the image asset id of the token's image. If {size} is specified then
+    the image is resized to the {size} pixels tall.
+    
+    Examples  
+        <img src="getTokenImage()"></img>
+ 
+
+                                                                *mtm-getLabel()*
+getLabel()
+    Returns the tokens label.
+
+    Examples  
+        [r: "You have been labeled: " + getLabel()]
+ 
+
+                                                                *mtm-setLabel()*
+setLabel({label})
+    Sets the label of the token to {label}.
+
+    Examples 
+        Sets the label of the token to "Big Trouble".  
+            [h: setLabel("Big Trouble")
+ 
+                                                                 *mtm-getName()*
+getName({id})
+    Gets the name of the token with the given ID, or the current token if
+    no ID is specified.  Specifying the ID requires a trusted macro.
+
+    Examples  
+            [r: "Your name is " + getName()]
+ 
+
+                                                                 *mtm-setName()*
+setName({name})
+    Sets the name of the token to {name}.
+    
+    Examples 
+        Sets name of the token to "Fred".  
+        [h: setName("Fred")]
+ 
+
+                                                                *mtm-getState()*
+getState({state})
+    Gets if {state} on the token is set. If the state is set then this function
+    will return 1, otherwise it will return 0.
+
+    Examples  
+        [r: if(getState("Dead"), "You are dead!", "")]
+ 
+
+                                                                *mtm-setState()*
+setState({state}, {value})
+    Sets the {state} for the token. If {value} is non zero then the state is 
+    set otherwise it is reset.
+
+    Examples 
+        Set Dead State on if HP is less than 0  
+            [h: setState("Dead", if(HP < 0, 1, 0)]
+ 
+
+                                                            *mtm-setAllStates()*
+setAllStates({value})
+    Sets all of the states for the token. If {value} is non zero then the state
+    is set, otherwise it is reset.
+    
+    Examples
+        Reset all states for the token.  
+            [h: setAllStates(0)]
+            [h: setAllStates(false)]
+ 
+                                                              *mtm-setVisible()*
+setVisible({vis})
+    Sets if the tokens visible to players flag is set or not. If {vis} is non
+    zero then the flag is set, otherwise it is reset. This is a GM only 
+    function.
+
+    Examples 
+        Make token invisible to players.  
+            [h: setVisible(0)]
+            [h: setVisible(false)]
+        Make token visible to players.  
+            [h: setVisible(1)]
+            [h: setVisible(true)
+ 
+    Note: This function will only set the "visible to players" flag on the
+          token, it will not allow the players to see the token if it is on
+          the hidden layer or obscured by fog of war.
+
+                                                              *mtm-getVisible()*
+getVisible()
+    Gets if the tokens visible to players flag is set or not.
+
+    Examples  
+        [r: if(getVisible(), "", "You can't see me!"]
+ 
+    Note: This function will only get the "visible to players" flag on the
+          token, it will not actually return if the token can be seen by
+          players or not. This is a GM only token.
+
+                                                            *mtm-isBarVisible()*
+isBarVisible({name})
+    Gets if the bar called {name} is visible on the token or not.
+
+    Examples  
+        [r: if(isBarVisible("Health"), "I can see your health", "")]
+ 
+
+                                                           *mtm-setBarVisible()*
+setBarVisible({name}, {vis}) 
+    Sets if the bar called {name} is visible or not for the token. If {vis} is
+    non zero then the bar is visible, otherwise it is not visible. This is a
+    GM only function.
+    
+    Examples 
+        Display the Health bar  
+            [h: setBarVisible(1)]
+            [h: setBarVisible(true)]
+        Hide the Health bar  
+            [h: setBarVisible(0)]
+            [h: setBarVisible(false)]
+ 
+
+                                                                   *mtm-input()*
+input({string}, ...)
+    Creates a dialog box that the user can use to input values for the 
+    specified variables. This function returns 1 if the ok button is clicked
+    by the user or 0 if the cancel button is clicked.
+
+    Examples  
+        [h: res = input("Health")]
+        Will create a dialog box with a text box for "Health", once the
+        function returns the variable Health will be set to the input value
+        if the user clicks ok.
+
+    For more information about the input() function see |mtm-input|
+
+===============================================================================
+
+STRING LISTS                                                   *mtm-string-list*
+
+Maptool has several functions that allow you to treat specially formatted 
+strings as a list. With the following functions you can create, and minipulate
+these lists.
+
+    listAppend({list}, {value} [, {delim}])           |mtm-listAppend()|
+    listCount({list} [, {delim}])                     |mtm-listCount()|
+    listDelete({list}, {index} [, {delim}])           |mtm-listDelete()|
+    listFind({list}, {value} [, {delim}])             |mtm-listFind()|
+    listGet({list}, {index} [, {delim}])              |mtm-listGet()|
+    listInsert({list}, {index}, {value} [, {delim}])  |mtm-listInsert()|
+    listReplace({list}, {index}, {value} [, {delim}]) |mtm-listReplace()|
+
+String lists take the form of  
+    "item1, item2, item3"
+ 
+Where ',' is the default delimiter for lists but can be changed by using the
+{delim} argument in the above functions. None of the list functions will
+modify the list itself, instead they will return a new list with the 
+changes.
+
+    For example  
+        [h: myList = "item1, item2, item3"]
+        [h: listAppend(myList, "item4")]
+ 
+    After running the above the variable myList will still be equal to   
+        item1, item2, item3
+    as no changes are made to the variable, if you wanted to have myList  
+    equal to  
+        item1, item2, item3, item4
+    then you would have to assign it the return value of listAppend()   
+        [h: myList = "item1, item2, item3"]
+        [h: myList = listAppend(myList, "item4")]
+ 
+    The first {index} in a list is 0, after  
+        [h: val = listGet("item1, item2, item3", 0)] 
+    val would be equal to  
+        item1
+    and after  
+        [h: val = listGet("item1, item2, item3", 1)] 
+    val would be equal to  
+        item1
+    Likewise afer  
+        [h: ind = listFind("item1, item2, item3", "item2")]
+    ind would be equal to  
+        1       
+ 
+===============================================================================
+
+STRING PROPERTIES                                                     *mtm-prop*
+
+Maptool has several functions that allow you to build up and manipulate 
+properties in a string (note: these properties have nothing to do with token
+properties). String properties take the form of key=value and are delimited by
+the ";" character.
+    For Example  
+        [h: weapon = "Name=LongSword; Damage=1d8"]
+ 
+Below is the list of functions that are used to manipulate string properties.
+
+    countStrProp({prop})                |mtm-countStrProp()|
+    deleteStrProp({prop}, {key})        |mtm-deleteStrProp()|
+    getStrProp({prop}, {key})           |mtm-getStrProp()|
+    indexKeyStrProp({prop}, {index})    |mtm-indexKeyStrProp()|
+    indexValueStrProp({prop}, {index})  |mtm-indexValueStrProp()|
+    setStrProp({prop}, {key}, {value})  |mtm-setStrProp()|  
+    varsFromStrProp({prop})             |mtm-varsFromStrProp()|
+
+None of the list functions will modify the string itself, instead they will 
+return a new string with the changes.
+
+    For example  
+        [h: weapon = "Name=LongSword; Damage=1d8"]
+        [h: setStrProp(weapon, "MaxDamage", "8")]
+ 
+    After running the above the weapon variable will be  
+        Name=LongSword; Damage=1d8
+    as no changes are made to the variable, if you wanted to have weapon
+    equal to  
+        Name=LongSword; Damage=1d8; MaxDamage=8
+    then you would have to assign it the return value of setStrProp()  
+        [h: weapon = "Name=LongSword; Damage=1d8"]
+        [h: weapon = setStrProp(weapon, "MaxDamage", "8")]
+ 
+    For functions that take an {index} the first key/value property index is
+    0. So after  
+        [h: weapon = "Name=LongSword; Damage=1d8; MaxDamage=8"]
+        [h: key = indexKeyStrProp(weapon, 0)]
+    the key variable would be equal to  
+        Name
+ 
+
+    The varsFromStrProp() function will create variables for all of the keys
+    in the properties with their values set to the corresponding value from
+    the properties.
+    Example  
+        [h: weapon = "Name=LongSword; Damage=1d8; MaxDamage=8"]
+        [h: varFromStrProp(weapon)
+
+    Will create the following variables
+        Name            Value  
+        Name            LongSword
+        Damage          1d8
+        MaxDamage       8
+
+===============================================================================
+
+INPUT FUNCTION                                                       *mtm-input*
+The input() function allows you to prompt the user for values. The function
+accepts multiple strings that specify the variable name, type of input, and
+default values for the dialog. If the user clicks on the cancel button then 
+the return value of the function is 0, if the user clicks on the ok button
+then the return value is 1. This value can be captured and used with the 
+abort() function to cancel the macro if the user clicks on cancel.
+
+    The general format of the input string is  
+        varname | value | prompt | type | options
+ 
+    Everything after varname is optional, you can leave the values empty to
+    sepcifiy the defaul value for an option.
+    Example  
+        Damage | 1d8 | | TEXT |
+    You also do not have to specify the empty || at the end of the string, so
+    instead of  
+        Damage | 1d8 | | |
+    You can use  
+        Damage | 1d8 
+ 
+    String Argument         Description  
+    varname                 The variable name to set.
+
+    value                   The value(s) to populate for this variable input
+                            in the input dialog. This value is interpreted 
+                            differently for the different input types, see
+                            tables below for details. If this is ommited then
+                            it defaults to "0", you can not set this to an 
+                            empty string as || will be interpreted as use 
+                            default of "0".
+
+    prompt                  Text that appears to the left of the dialog input
+                            field for this variable.
+
+    inputType               The input type for the variable (see tables below).
+
+    options                 Input options, the contents of this field depend 
+                            on inputType, see tables below for valid options
+                            for each inputType.
+    
+    
+    Input Type              Description  
+    TEXT                    This is the default value used if inputType is not
+                            specified. The dialog box will contain a text
+                            box for entry of this variable. For this input
+                            type 'value' specifies the default value to be set
+                            in the input box. 'varname' is set to the value in
+                            the input field for this type.
+
+    LIST                    Creates a drop down list of choices for the
+                            variable. 'value' is a string list that gives the
+                            different values for the drop down list. The 
+                            'varname' is set to the index into the string 
+                            although this can be changed to the actual item in
+                            the list in the 'options'
+
+    CHECK                   Create a check box for the variable. 'value' 
+                            specifies if the check box is checked or not, non
+                            zero for checked, 0 for not checked. 'varname' is
+                            set to 1 if the box is checked or 0 if it is not.
+
+    RADIO                   Creates a group of radio buttons for the variable.
+                            'value' contains a list of button names. 'varname'
+                            is set to the index into the list of the selected
+                            item although this can be changed to the actual
+                            item in the list in the 'options'
+
+    LABEL                   Creates a static label, 'varname' is ignored.
+
+    PROPS                   Creates a text input field` for each of the keys in
+                            the property list. 'value' is the property list 
+                            to create the input for. 'varname' is the name
+                            of the variable to assign the edited property list
+                            to.
+
+
+
+
+    TEXT input option       Description  
+    WIDTH=nnn               Sets the width of the text input field, if not 
+                            specified then it defaults to 16.
+
+
+
+    
+    LIST input option       Description  
+    SELECT=nnn              The index of the item in the list that contains
+                            input choices that is selected by default. The
+                            index starts at 0. Defaults to 0 if not specified.
+
+    VALUE=STRING|NUMBER     Determines if 'varname' is assigned the index or
+                            the value of the selected item. If VALUE=STRING 
+                            then 'varname' is set to the item in the list, if
+                            VALUE=NUMBER then 'varname' is set to index of the
+                            selected item in the list (index starts at 0).
+
+    TEXT=TRUE|FALSE         Should text be shown in the list items. Defaults
+                            to TEXT=TRUE if not specified.
+
+    ICON=TRUE|FALSE         Should the item in the list be interpreted as an 
+                            image asset URL. Defaults to ICON=FALSE
+
+    ICONSIZE=nnn            The size of the icon. Defaults to ICONSIZE=0
+
+
+
+
+    RADIO Input option      Description  
+    ORIENT=V|H              Arranges the radio boxes vertically for V or 
+                            horizontally  for H.
+
+    SELECT=nnn              The index of the item in the list that contains
+                            input choices that is selected by default. The
+                            index starts at 0. Defaults to 0 if not specified.
+
+    VALUE=STRING|NUMBER     Determines if 'varname' is assigned the index or
+                            the value of the selected item. If VALUE=STRING 
+                            then 'varname' is set to the item in the list, if
+                            VALUE=NUMBER then 'varname' is set to index of the
+                            selected item in the list (index starts at 0).
+
+    
+    LABEL Input option      Description  
+    TEXT=TRUE|FALSE         Should text be shown in the list items. Defaults
+                            to TEXT=TRUE if not specified.
+
+    ICON=TRUE|FALSE         Should the item in the list be interpreted as an 
+                            image asset URL. Defaults to ICON=FALSE
+
+    ICONSIZE=nnn            The size of the icon. Defaults to ICONSIZE=0
+
+    
+    PROPS Input option      Description  
+    SETVARS=TRUE|FALSE      If SETVARS=TRUE then the variables in the returned
+                            property string are set as if varsFromStrProp()
+                            had been called. Defaults to SETVARS=FALSE
+
+
+    Some Examples of using the input() function. Copy these and paste them into
+    Maptool so you can see the results.
+
+        Create a simple dialog that prompts for variable Name, and stops 
+        processing the macro if the cancel button on the dialog is clicked.  
+            [h: res = input("Name")] [h: abort(res)] [Name]
+ 
+        Create a simple dialog that prompts for Weapon Name and Damage and will
+        store them in the variables WeaponName and Damage.  
+            [h: res = input("WeaponName || Weapon Name", "Damage")]
+            [h: abort(res)]
+            [WeaponName]  [Damage]
+ 
+        Same dialog as above with radio buttons to select if the weapon is a
+        Melee or Ranged weapon.  
+            [h: res = input("WeaponName || Weapon Name", "Damage", 
+                   "WeaponType |Melee, Ranged| Weapon Type| RADIO")]
+            [h: abort(res)]
+            [WeaponName]  [Damage] [WeaponType]
+ 
+        Change it so that the Weapon Type group is horizontal instead of 
+        vertical.  
+            [h: res = input("WeaponName || Weapon Name", "Damage", 
+                   "WeaponType |Melee, Ranged| Weapon Type| RADIO | ORIENT=H")]
+            [h: abort(res)]
+            [WeaponName]  [Damage] [WeaponType]
+ 
+        While the above dialog box looks better it the WeaponType variable 
+        contains 0 or 1 indicating the index into the list. It would be better
+        if it actually returned "Melee" or "Ranged" so lets fix that.  
+            [h: res = input("WeaponName || Weapon Name", "Damage", 
+                         "WeaponType |Melee, Ranged| Weapon Type| RADIO |" +
+                         " ORIENT=H,VALUE=STRING")]
+            [h: abort(res)]
+            [WeaponName]  [Damage] [WeaponType]
+ 
+        Adding a weapon Group  
+            [h: res = input("WeaponName || Weapon Name", "Damage", 
+               "WeaponType |Melee, Ranged| Weapon Type| RADIO |" +
+                         " ORIENT=H,VALUE=STRING",
+                "WeaponGroup | Axe, Bow, Crossbow, Flail, Hammer, " +
+                "Heavy Blade, Light Blade, Mace, Pick, Polearm, Sling | " +
+                "Weapon Group | LIST | VALUE=STRING"
+            )]
+            [h: abort(res)]
+            [WeaponName]  [Damage] [WeaponType]  [WeaponGroup]
+ 
+        Property List Example. We will now implement the above in a property
+        list for the weapon.  
+            [h: Weapon = "Name=Longsword; Damage=1d8; Type=Melee; " +
+                         "Group=Heavy Blade"]
+            [h: res = input("Weapon | " + Weapon +
+                            " | Weapon Details | PROPS")]
+            [h: abort(res)] 
+ 
+        Unfortinately this will display a dialog that has text boxes for all of
+        the input values. One way around this is to do something like  
+            [h: Weapon = "Name=Longsword; Damage=1d8; Type=Melee; " +
+                         "Group=Heavy Blade"]
+
+            [h: WeaponTypeList = "Melee, Ranged"]
+            [h: WeaponGroupList = "Axe, Bow, Crossbow, Flail," +
+                                  "Hammer, Heavy Blade, Light Blade, " + 
+                                  "Mace, Pick, Polearm, Sling" ]
+
+            <!-- Create Varaibles from the Property List -->
+            [h: varsFromStrProp(Weapon)]
+
+            <!-- Get the index into the lists for Weapon Type and Group -->
+            [h: selType = listFind(WeaponTypeList, Type)]
+            [h: selGroup = listFind(WeaponGroupList, Group)]
+    
+            [h: res = input("Name | " + Name + "| Weapon Name", 
+                            "Damage | " + Damage, 
+                            "Type | " + WeaponTypeList + 
+                            " | Weapon Type| RADIO |" +
+                            " ORIENT=H,VALUE=STRING,SELECT=" + selType,
+                            "Group | " + WeaponGroupList + " | " +
+                            " Weapon Group | LIST | VALUE=STRING,SELECT=" +
+                            selGroup
+            )]
+            [h: abort(res)]
+            [h: Weapon = ";"]
+            [h: Weapon = setStrProp(Weapon, "Name", Name)]
+            [h: Weapon = setStrProp(Weapon, "Damage", Damage)]
+            [h: Weapon = setStrProp(Weapon, "Type", Type)]
+            [h: Weapon = setStrProp(Weapon, "Group", Group)]
+            [Weapon]
+ 
+
+
+===============================================================================
+
+EDITOR MAPPINGS                                                   *mtm-mappings*
+    Standard Roll Type          |mtm-simple-rolls|
+    Loop/Conditional Rolls      |mtm-loop-rolls|
+    Hidden Rolls                |mtm-hidden-rolls|
+    Code Rolls                  |mtm-code-rolls|
+    Hidden Code Rolls           |mtm-hidden-code-rolls|
+    Other Rolls                 |mtm-other-rolls|
+    Code Rolls                  |mtm-code-rolls|
+    Functions                   |mtm-function-mappings|
+    Input Function String       |mtm-input-string|    
+
+In the following descriptions, LocalLeader is modifiable but defaults to
+
+FORMATTING ROLLS                                              *mtm-simple-rolls*
+    <LocalLeader>[h
+        Hidden Roll
+        [h:]
+    <LocalLeader>[r
+        Result (Plain roll)
+        [r:]
+    <LocalLeader>[e
+        Expanded Roll
+        [e:]
+    <LocalLeader>[t
+        ToolTip Roll
+        [t():]
+    <LocalLeader>[u
+        Unformatted Roll
+        [u: ]
+
+LOOPING AND CONDITIONAL ROLLS                                  *mtm-loop-rolls*
+    <LocalLeader>[c
+        Count Roll
+        [c():]
+    <LocalLeader>[w
+        While Roll
+        [while():]
+    <LocalLeader>[f
+        For Roll
+        [for():]
+    <LocalLeader>[fe
+        Foreach Roll
+        [foreach():]
+    <LocalLeader>[i
+        If Roll
+        [if():]
+
+
+OTHER ROLLS                                                   *mtm-other-rolls*
+    <LocalLeader>hc
+        HTML comment 
+        <!--  -->
+    <LocalLeader>i
+        Input function in a hidden roll
+        [h: res = input()]
+    <LocalLeader>ia
+        Input function in hidden roll and abort if cancel is pushed
+        [h: res = input()]
+        [h: abort(res)]
+    <LocalLeader>[m
+        Macro rolls
+        [macro():]
+
+
+HIDDEN ROLLS                                                 *mtm-hidden-rolls*
+    <LocalLeader>[hc
+        Hidden Count Roll
+        [h,c():]
+    <LocalLeader>[hw
+        Hidden While Rolls
+        [h,while():]
+    <LocalLeader>[hf
+        Hidden For Rolls
+        [h,for():]
+    <LocalLeader>[hfe
+        Hidden For Each Rolls
+        [h,foreach():]
+    <LocalLeader>[hi
+        Hidden If Roll
+        [h,if():]
+    <LocalLeader>[hm
+        Hiddem Macro Roll
+        [h,macro():]
+
+CODE ROLLS                                                     *mtm-code-rolls*
+    <LocalLeader>[` 
+        Code roll
+        [code: ``]
+    <LocalLeader>[c`
+        Count roll with Code
+        [c(), code: ``]
+    <LocalLeader>[f`
+        For roll with Code
+        [for(), code: ``]
+    <LocalLeader>[fe`
+        For each roll with Code
+        [foreach(), code: ``]
+    <LocalLeader>[w`
+        While roll with Code
+        [while(), code: ``]
+    <LocalLeader>[i`
+        If roll with Code
+        [if(), code: ``]
+    <LocalLeader>[m`
+        Macro roll with Code
+        [macro():]
+
+HIDDEN CODE ROLLS                                        *mtm-hidden-code-rolls*
+    <LocalLeader>[hc`
+        Hidden count roll with code
+        [h,c(), code: ``]
+    <LocalLeader>[hf`
+        Hidden for roll with code
+        [h,for(), code: ``]
+    <LocalLeader>[hfe`
+        Hidden foreach roll with code
+        [h,foreach(), code: ``]
+    <LocalLeader>[hw`
+        Hidden while roll with code
+        [h,while(), code: ``]
+    <LocalLeader>[hi`
+        Hidden if roll with code
+        [h,if(), code: ``]
+    <LocalLeader>[hm`
+        Hiddem macro roll with code
+        [h,macro(): ``]
+
+===============================================================================
+
+FUNCTION MAPPINGS                                        *mtm-function-mappings*
+    Initiative Functions            |mtm-func-init-mappings|
+    String List Functions           |mtm-func-string-mappings|
+    String Properties Functions     |mtm-func-strprop-mappings|
+    Bar Functions                   |mtm-func-bar-mappings|
+    Token Functions                 |mtm-func-token-mappings|
+    Table Functions                 |mtm-func-table-mappings|
+    
+
+INITIATIVE FUNCTION MAPPINGS                           *mtm-func-init-mappings*
+    <LocalLeader>ati
+        addToInitiative()
+    <LocalLeader>aati
+        addAllToInitiative()
+    <LocalLeader>aapti
+        addAllPCsToInitiative()
+    <LocalLeader>aanti
+        addAllNPCsToInitiative()
+    <LocalLeader>gci
+        getCurrentInitiative()
+    <LocalLeader>gir
+        getInitiativeRound()
+    <LocalLeader>sir
+        setInitaitiveRound()
+    <LocalLeader>soi
+        sortInitiative()
+    <LocalLeader>ni
+        nextInitiative()
+    <LocalLeader>is
+        initiativeSize()
+    <LocalLeader>rafi
+        removeAllFromInitiative()
+    <LocalLeader>rapfi
+        removeAllPCsFromInitiative()
+    <LocalLeader>ranfi
+        removeAllNPCsFromInitiative()
+    <LocalLeader>sei
+        setInitiative()
+    <LocalLeader>gi
+        getInitiative()
+    <LocalLeader>sih
+        setInitiativeHold()
+    <LocalLeader>gih
+        getInitiativeHold()
+
+STRING LIST FUNCTIONS                               *mtm-func-string-mappings*
+    <LocalLeader>la
+        listAppend()
+    <LocalLeader>lg
+        listGet()
+    <LocalLeader>ld
+        listDelete()
+    <LocalLeader>lc
+        listCount()
+    <LocalLeader>lr
+        listReplace()
+    <LocalLeader>li
+        listInsert()
+    <LocalLeader>lf
+        listFind()
+
+STRING PROPERTIES FUNCTIONS                        *mtm-func-strprop-mappings*
+    <LocalLeader>gsp
+        getStrProp()
+    <LocalLeader>ssp
+        setStrProp()
+    <LocalLeader>dsp
+        deleteStrProp()
+    <LocalLeader>vfsp
+        varsFromStrProp()
+    <LocalLeader>csp
+        counStrProp()
+    <LocalLeader>iksp
+        indexKeyStrProp()
+    <LocalLeader>ivsp
+        indexValueStrProp()
+
+BAR FUNCTIONS                                         *mtm-func-bar-mappings*
+    <LocalLeader>gb
+        getBar()
+    <LocalLeader>sb
+        setBar()
+
+TOKEN FUNCTIONS                                     *mtm-func-token-mappings*
+    <LocalLeader>gn
+        getName()
+    <LocalLeader>sn
+        setName()
+    <LocalLeader>gl
+        getLabel()
+    <LocalLeader>sl
+        setLabel()
+    <LocalLeader>ggn
+        getGMName()
+    <LocalLeader>sgn
+        setGMName()
+    <LocalLeader>gsi
+        getStateImage()
+    <LocalLeader>gst
+        getState()
+    <LocalLeader>sst
+        setState()
+    <LocalLeader>sas
+        setAllStates()
+    <LocalLeader>sv
+        setVisible()
+    <LocalLeader>gv
+        getVisible()
+    <LocalLeader>gh
+        getHalo()
+    <LocalLeader>sh
+        setHalo()
+
+TABLE FUNCTIONS                                        *mtm-func-table-mappings*
+    <LocalLeader>tb
+        table()
+    <LocalLeader>ti
+        tableImage()
+    
+===============================================================================
+
+INPUT STRING VALUES                                           *mtm-input-string*
+    <LocalLeader>ep 
+        Empty Properties List
+        " ;"
+    <LocalLeader>ist
+        Input String TEXT
+        |TEXT
+    <LocalLeader>isl
+        Input String LIST
+        |LIST
+    <LocalLeader>isc
+        Input String CHECK
+        |CHECK
+    <LocalLeader>isr
+        Input String RADIO
+        |RADIO
+    <LocalLeader>isp
+        Input String PROPS
+        |PROPS
+    <LocalLeader>isw
+        Input String WIDTH=
+        |WIDTH=
+    <LocalLeader>iss
+        Input String SELECT=
+        |SELECT=
+    <LocalLeader>isv
+        Input String VALUE=
+        |VALUE=
+    <LocalLeader>ist
+        Input String TEXT
+        |TEXT=TRUE
+    <LocalLeader>istf
+        Input String TEXT=FALSE
+        |TEXT=FALSE
+    <LocalLeader>isi
+        Input String ICON=TRUE
+        |ICON=TRUE
+    <LocalLeader>isif
+        Input String ICON=FALSE
+        |ICON=FALSE
+    <LocalLeader>isis
+        Input String ICONSIZE=
+        |ICONSIZE=
+    <LocalLeader>isoh
+        Input String ORIENT=H
+        |ORIENT=H
+    <LocalLeader>isov
+        Input String ORIENT=V
+        |ORIENT=V
+    <LocalLeader>issv
+        Input String SETVARS=TRUE
+        |SETVARS=TRUE
+    <LocalLeader>issvf
+        Input String SETVARS=FALSE
+        |SETVARS=FALSE
+
+===============================================================================
+MAPTOOL SLASH COMMANDS                                      *mtm-slash-commands*
+Slash commands are commands that can be used in MapTool macros to perform
+various functions. As the name suggests they all start with the '/' character.
+Slash commands must be the first thing in a macro otherwise they will be
+treated as normal text. Slash commands can not be executed from within rolls
+[] or {}.
+
+Except where noted in the list of commands below any macros in [] or {} will
+be expanded.
+
+    Alias Slash Commands                  |mtm-slash-alias|
+    Communication/Roll Slash Commands     |mtm-slash-communication|
+    Token Slash Commands                  |mtm-slash-token|
+    Table Slash Commands                  |mtm-slash-table|
+    Miscellaneous Slash Commands          |mtm-slash-misc|
+    Deprecated Slash Commands             |mtm-slash-old|
+
+
+ALIAS SLASH COMMANDS                                          *mtm-slash-alias*
+
+    /alias [{name} [,{command}]]
+        Defines an alias which effectively creates a new slash
+        command. Example  
+        /alias greetall /say Hello everyone.
+            Will perform "/say Hello everyone" when you type "/greetall".
+            Alias also accepts parameters within ${} in the command which 
+            are replaced with the text that is typed when the alias is 
+            run.  
+        
+        Example  
+            /alias greet /say Hello ${1}, hows ${2}?
+            /greet Fred life
+                Results in
+                    Somone says: Hello Fred, hows life?  
+            /greet "Fred Flintstone" things
+                Results in
+                    Somone says: Hello Fred Flitnstone, hows things?  
+
+        ${*} is replaced with all the text after the alias.
+
+        If {command} is not specified then the alias for {name} is
+        removed.
+
+        If {name} is not specified then all the aliases that are in
+        memory will be listed.
+
+        Note: Rolls in [] and {} are not expanded when the /alias
+        command is run, instead they will be expanded when the 
+        alias you define is run.
+
+
+    /savealias [{filename}]
+        Saves the aliases to a file. If {filename} is not provided
+        then a file dialog will be displayed so you can select the
+        filename to save the aliases in.
+
+    /loadalias [{filename}}
+        Loads the aliases from a file. If {filename} is not 
+        provided then a file dialog will be displayed so you can
+        select the filename to load the aliases from.
+
+    /clearaliases
+        Removes all aliases from memory.
+
+
+COMMUNICATION AND ROLL SLASH COMMANDS                  *mtm-slash-communication*
+
+    /emit {text}
+    /e    {text}
+        Broadcast text to all connected players without any prefix.
+        GM only command.
+
+    /emote {text}
+    /me    {text}
+        Broadcast an emote to all connected players.
+
+    /togm {text}
+    /gm   {text}
+        Send a message to GMs only.
+
+    /ooc
+        Out of character chat. Sends an out of charater message to all
+        connected players.
+
+    /reply {text}
+    /rep   {text}
+        Replies to the last player to send you a whisper sending them
+        a whisper containing {text}.
+
+    /roll {dice}
+    /r    {dice}
+        Rolls dice (see |mtm-dice|) and broadcasts the results to all
+        players.
+    
+    /rollgm {dice}
+    /rgm    {dice}
+        Rolls dice (see |mtm-dice|) and broadcasts the results to GMs
+        and your.
+
+    /rollme {dice}
+    /rme    {dice}
+        Rolls dice (see |mtm-dice|) and displays results only to
+        you.
+
+    /rollsecret {dice}
+    /rsec         {dice}
+        Rolls dice (see |mtm-dice|) and displays results only to
+        GMs.
+
+    /say {text}
+    /s   {text}
+        Sends a message containing {text} to everyone connected.
+
+    /whisper {who} {text}
+    /w       {who} {text}
+        Sends a message containing {text} to player {who}.
+
+
+
+TOKEN SLASH COMMANDS                                           *mtm-slash-token*
+
+    /impersonate [{name} [: {command}]]
+    /im          [{name} [: {command}]]
+        Impersonates {name}. If {name} matches the name of a token
+        then that token is impersonated. If it does not match the
+        name of a token then no token is impersonted and only the
+        identity for the chat panel is set.
+        If {command} is specified then the command is run then the
+        {command} is run and then the impersonation is restored to
+        the previous value. 
+        if {name} is not specified then the current impersonation is
+        cleared.
+
+    /settokenproperty [{name}] {expr}
+    /stp              [{name}] {expr}
+        Sets token properties. {expr} contains rolls in [] that are
+        used to set the tokens states. If {name} is specified then
+        the {expr} is run on that token, otherwise it is run against
+        all selected tokens. All output is discarded. 
+
+        Note: {expr} is evaluated separately for each token that is
+              selected if {name} is not specified. 
+
+        Note: With the newer run on selected ability of campaign and
+              global macro buttons this command is no longer required
+              for most situations.
+    
+    /settokenstate [{name}] {state} [{value}]
+    /sts           [{name}] {state} [{value}]
+        Sets the token state {state}. If {name} is specified then this
+        is the name of the token to change the state of, otherwise the
+        state is changed for all selected tokens. If {value} is true
+        then the state is set, if it is false then the state is reset.
+        If {value} is not specified then the state is toggled.
+
+    /tmacro {macro}
+    /tm     {macro}
+        Runs the token macro named {macro} from all selected tokens.
+
+    /tsay {name}
+    /ts   {name}
+        Sends the text from the token speech dialog with ID of {name}
+        to all connected players as a say for all of the selected 
+        tokens.
+
+TABLE SLASH COMMANDS                            *mtm-slash-table*
+    /table {name} [{value}]
+    /tab   {name} [{value}]
+        Fetches a value from the table called {name}. If value is
+        specified is is evalauted to determine which row in the 
+        table to get, otherwise the default roll for the table is
+        used. {value} can be a dice roll (see |mtm-dice|).
+
+        If the row in the table contains an image then that image is
+        displayed, otherwise if the text for the row starts with a
+        / then the commad is run, othereise the text is sent to all
+        players as a say.
+
+MISCELLANEOUS SLASH COMMANDS                                    *mtm-slash-misc*
+    
+    /color {color}
+    /cc    {color}
+        Changes the color of your chat text. {color} is in hexadecimal
+        format (e.g. #FF0000).
+
+    /goto {x},{y}
+    /goto {x},{y}
+    /g    {name}
+    /g    {name}
+        Centers the map. If the {x},{y} format is used them the map is
+        centered on the {x},{y} co-ordinates. If the {name} format is
+        used then the map is centered on the token with that name.
+
+        
+    /help
+    /h
+        Displays a list and short description of all the slash
+        comands.
+    
+
+
+OLD SLASH COMMANDS                                               *mtm-slash-old*
+    Note: These commands hav been replaced with GUI dialogs and you should
+          use those dialogs.
+
+    /addtokenstate {state} {overlay} [{p1}, [{p1}]]
+    /tsa           {state} {overlay} [{p1}, [{p1}]]
+        Adds a token state named {state} to the campaign. Valid
+        values for {overlay} are
+            dot 
+                {p1} is the color of the dot.
+                {p2} is the corner to place the dot.
+            circle
+                {p1} is the color of the circle.
+                {p2} is the line width of the circle.
+            shade
+                {p1} is the color of the overlay.
+            x
+                {p1} is the color of the X.
+                {p2} is the line width of the X.
+            cross
+                {p1} is the color of the cross.
+                {p2} is the line width of the cross.
+            diamond
+                {p1} is the color of the diamond.
+                {p2} is the line width of the diamond.
+            yield
+                {p1} is the color of the yeild symbol.
+                {p2} is the line width of the yeild symbol.
+            triangle
+                {p1} is the color of the triagnle.
+                {p2} is the line width of the triagnle.
+
+    /loadtokenstate [{filename}]
+    /tsl            [{filename}]
+        Load the token states in {filename}. If {filename} is ommited
+        then a load dialog is shown so you can pick the file to load.
+
+    /savetokenstates [{filename}]
+    /tss             [{filename}]
+        Saves the token states in {filename}. If {filename} is ommited
+        then a save dialog is shown so you can choose the filename to
+        save.
+
+===============================================================================

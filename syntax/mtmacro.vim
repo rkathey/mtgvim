@@ -204,12 +204,12 @@ syntax region jinja start=/\v\{\%/ end=/\v\%\}/
 
 " too much highlighy kills the highlight
 "highlight link parserIdent Identifier
+"highlight link parserRoll Macro
 
 "Support jinja 2 directives, this is a template engine, you may disable it
 " if you don't use it
 highlight link jinja DiffChange
 
-highlight link parserRoll Macro
 highlight link innerParserRoll Macro
 highlight link parserCmd Macro
 highlight link parserFunc Identifier

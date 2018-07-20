@@ -36,37 +36,60 @@ syntax region  htmlString   contained start=+'+ end=+'+ contains=htmlSpecialChar
 "syntax keyword mtCom tss say s self settokenproperty stp settokenstate
 "syntax keyword mtCom sts table tbl tmacro tm tsay ts whisper w
 
-" Builtin parser functions
-syntax keyword parserFunc abs absolutevalue add sum concat set contained
-syntax keyword parserFunc bitwiseand band bitwisenot bnot contained
-syntax keyword parserFunc bitwiseor bor bitwisexor bxor contained
-syntax keyword parserFunc ceil ceiling divide eval floor contained
-syntax keyword parserFunc hex hypot hypotenuse ln log log10 max contained
-syntax keyword parserFunc mean avg average median min multiply contained
-syntax keyword parserFunc sqr square power factor pow round sqrt contained
-syntax keyword parserFunc squareroot subtract contained
-
-" MapTool Parser functions
-syntax keyword parserFunc abort addAllToInitiative contained 
-syntax keyword parserFunc addAllPCsToInitiative contained
-syntax keyword parserFunc addAllNPCsToInitiative getcurrentInitiative contained
-syntax keyword parserFunc setCurrentInitiative getInitiativeRound contained
-syntax keyword parserFunc setInitiativeRound tbl table tblImage contained
-syntax keyword parserFunc tableImage nextInitiative sortInitiative contained
-syntax keyword parserFunc intiativeSize removeAllFromInitiative contained
-syntax keyword parserFunc removeAllPCsFromInitiative contained
-syntax keyword parserFunc removeAllNPCsFromInitiative getStateImage contained
-syntax keyword parserFunc listGet listDelete listCount listFind contained
-syntax keyword parserFunc listAppend listInsert listReplace contained
-syntax keyword parserFunc getStrProp setStrProp deleteStrProp varsFromStrProp contained
-syntax keyword parserFunc countStrProp indexKeyStrProp indexValueStrProp contained
-syntax keyword parserFunc addToInitiative getBar setBar getGMName setGMName contained
-syntax keyword parserFunc getHalo setHalo getTokenImage setInitiative contained
-syntax keyword parserFunc getInitiative setInitiativeHold getInitiativeHold contained
-syntax keyword parserFunc getLabel setLabel getName setName contained 
-syntax keyword parserFunc removeFromInitiative getState setState setAllStates contained
-syntax keyword parserFunc setVisible getVisible input isBarVisible contained
-syntax keyword parserFunc setBarVisible if contained
+" the following list is extracted from AliasMask's Notepad syntax file
+syntax keyword parserFunc abort abs absolutevalue add addAllNPCsToInitiative addAllPCsToInitiative contained
+syntax keyword parserFunc addAllToInitiative addTableEntry addToInitiative contained
+syntax keyword parserFunc arg argCount assert average avg band bitwiseand bitwisenot bitwiseor contained
+syntax keyword parserFunc bitwisexor bnot bor bringToFront broadcast bxor canSeeToken ceil ceiling clearLights clearTable contained
+syntax keyword parserFunc closeDialog closeFrame code concat copyToken count countStrProp countsuccess createMacro createTable contained
+syntax keyword parserFunc currentToken decode defineFunction deleteStrProp deleteTable deleteTableEntry deselectTokens contained
+syntax keyword parserFunc dialog divide drop encode endsWith eval evalMacro execLink execMacro expanded explode contained
+syntax keyword parserFunc explodingSuccess exposeFOW exposePCOnlyArea findToken floor foreach formatStrProp frame contained
+syntax keyword parserFunc fudge getAllMapNames getAllPlayerNames contained
+syntax keyword parserFunc getAllPropertyNames getBar getCurrentInitiative getCurrentMapName getDistance contained
+syntax keyword parserFunc getDistanceToXY getDrawOrder getExposedTokenNames getExposedTokens getFindCount getGMName getGMNotes contained
+syntax keyword parserFunc getGroup getGroupCount getGroupEnd getGroupStart getHalo getImage getImpersonated getImpersonatedName contained
+syntax keyword parserFunc getInfo getInitiative getInitiativeHold getInitiativeList getInitiativeRound getInitiativeToken contained
+syntax keyword parserFunc getLabel getLastPath getLayer getLibProperty getLights getMacroButtonIndex getMacroCommand contained
+syntax keyword parserFunc getMacroGroup getMacroIndexes getMacroLocation getMacroName getMacroProps getMacros contained
+syntax keyword parserFunc getMatchingLibProperties getMatchingProperties getMoveCount getName getNotes getNPC contained
+syntax keyword parserFunc getNPCNames getOwned getOwnedNames getOwnerOnlyVisible getOwners getPC getPCNames contained
+syntax keyword parserFunc getPlayerName getProperty contained
+syntax keyword parserFunc getPropertyDefault getPropertyNames getPropertyType getRawProperty contained
+syntax keyword parserFunc getSelected getSelectedNames getSightType getSize getSpeech getSpeechNames getState contained
+syntax keyword parserFunc getStateImage getStrProp getTableAccess getTableNames getTableRoll getTableVisible contained
+syntax keyword parserFunc getTokenFacing getTokenGMName getTokenHalo getTokenHandout getTokenImage getTokenLabel contained
+syntax keyword parserFunc getTokenNames getTokenNames.info getTokenPortrait getTokens getTokens.info getTokenStates contained
+syntax keyword parserFunc getTokenX getTokenY getVisible getVisibleMapNames getVisibleTokenNames getVisibleTokens contained
+syntax keyword parserFunc getWithState getWithStateNames gmtt goto hasImpersonated hasLightSource hasMacro contained
+syntax keyword parserFunc hasProperty hasSight hero herobody herostun hex hidden hide hypot hypotenuse indexOf contained
+syntax keyword parserFunc indexKeyStrProp indexValueStrProp initiativeSize input input.check input.label contained
+syntax keyword parserFunc input.list input.props input.radio input.tab input.text isBarVisible isDialogVisible contained
+syntax keyword parserFunc isFrameVisible isFunctionDefined isGM isNPC isNumber isOwnedByAll isOwner isPC contained
+syntax keyword parserFunc isPropertyEmpty isTrusted isVisible json.append json.contains json.count contained
+syntax keyword parserFunc json.difference json.equals json.evaluate json.fields json.fromList json.fromStrProp contained
+syntax keyword parserFunc json.get json.indent json.indexOf contained
+syntax keyword parserFunc json.intersection json.isEmpty json.length json.merge json.remove json.removeAll contained
+syntax keyword parserFunc json.reverse json.set json.shuffle json.sort json.subset json.toList json.toStrProp json.type json.union contained
+syntax keyword parserFunc json.unique keep lastIndexOf length listAppend listContains listCount listDelete listFind listFormat contained
+syntax keyword parserFunc listGet listInsert listReplace listSort ln log log10 lower macro macro.args macro.return macroLink contained
+syntax keyword parserFunc macroLink.info macroLinkText macroLinkText.info matches max mean median min movedOverPoints contained
+syntax keyword parserFunc movedOverToken moveToken moveTokenFromMap moveTokenToMap multiply nextInitiative number contained
+syntax keyword parserFunc oldFunction openTest pow power regex.info1 regex.info2 regex.info3 removeAllFromInitiative contained
+syntax keyword parserFunc removeAllNPCsFromInitiative removeAllPCsFromInitiative removeFromInitiative removeMacro contained
+syntax keyword parserFunc removeToken removeTokenFacing replace reroll resetFrame resetProperty result roll roll.count contained
+syntax keyword parserFunc roll.result round selectTokens self selftt sendToBack set setAllStates contained
+syntax keyword parserFunc setBar setBarVisible setCurrentInitiative setCurrentMap contained
+syntax keyword parserFunc setDrawOrder setGMName setGMNotes setHalo setHasSight setInitiative setInitiativeHold contained
+syntax keyword parserFunc setInitiativeRound setLabel setLayer setLibProperty setLight setMacroCommand setMacroProps contained
+syntax keyword parserFunc setName setNotes setNPC setOwner setOwnerOnlyVisible setPC setProperty setPropertyType contained
+syntax keyword parserFunc setSightType setSize setSpeech setState setStrProp setTableAccess setTableEntry setTableRoll contained
+syntax keyword parserFunc setTableVisible setTokenFacing setTokenGMName setTokenHandout setTokenImage setTokenLabel contained
+syntax keyword parserFunc setTokenPortrait setVisible sortInitiative sqr sqrt square squareroot sr4 sr4e startsWith contained
+syntax keyword parserFunc strfind strformat strformat.info1 strformat.info2 string stringToList strPropFromVars contained
+syntax keyword parserFunc substring subtract success sum switch switchToken table tableImage tbl tblImage token contained
+syntax keyword parserFunc token.gm_name token.halo token.init token.initHold token.label token.name token.visible contained
+syntax keyword parserFunc tooltip trim ubiquity unformatted upper varsFromStrProp while whisper contained
 
 " Numeric Constants
 syn match parserConst "\$[0-9a-fA-F]\+\>" contained
@@ -129,8 +152,8 @@ syntax cluster stringSpecial add=propSep,listSep,inputSep,inputText,inputList,in
 " Parser strings
 "syntax region parserString start=/'/ skip=/\\'/ end=/'/ contained contains=propSep,listSep
 "syntax region parserString start=/"/ skip=/\\"/ end=/"/ contained contains=propSep,listSep
-syntax region parserString start=/'/ skip=/\\'/ end=/'/ contained contains=@stringSpecial,@htmlTop
-syntax region parserString start=/"/ skip=/\\"/ end=/"/ contained contains=@stringSpecial,@htmlTop
+syntax region parserString start=/'/ skip=/\\'/ end=/'/ contained contains=@stringSpecial,@htmlTop,jinja
+syntax region parserString start=/"/ skip=/\\"/ end=/"/ contained contains=@stringSpecial,@htmlTop,jinja
 
 syntax match ifParserFunc /if\s*(/he=e-1 contained 
 syntax region parserCaseFull matchgroup=parserCase start=/\ccase/ end=/:/rs=s+1 contains=parserIdent,parserString,parserConst,ParserFloatNumber
@@ -172,23 +195,29 @@ syntax region parserInnerRoll start=/{/rs=e end=/}/re=s matchgroup=parserRollCmd
 
 "syntax region innerParserRoll matchgroup=parserRollBracket start=/\[/ skip=/\\\\]/ end=/\]/ contains=parserRollBehaviour,ifParserFunc,parserFunc,parserIdent,parserString,parserConst,parserFloatNumber,beParserRollBehaviour,@rollBehaviours,parserCaseFull,parserCaseDefault
 
-syntax region parserRoll matchgroup=parserRollBracket start=/\[/ skip=/\\\\]/ end=/\]/ contains=parserRollBehaviour,ifParserFunc,parserFunc,parserIdent,parserString,parserConst,parserFloatNumber,beParserRollBehaviour,parserInnerRoll,@parserErrors,parserCaseFull,@rollBehaviours,parserCaseDefault
+syntax region parserRoll matchgroup=parserRollBracket start=/\[/ skip=/\\\\]/ end=/\]/ contains=parserRollBehaviour,ifParserFunc,parserFunc,parserIdent,parserString,parserConst,parserFloatNumber,beParserRollBehaviour,parserInnerRoll,@parserErrors,parserCaseFull,@rollBehaviours,parserCaseDefault,jinja
 
 syntax region parseCmd matchgroup=parserCmdBrace start=/{/ skip=/\\}]/ end=/}/ contains=ifParserFunc,parserFunc,parserIdent,parserString,parserConst,parserFloatNumber
 
+syntax region jinja start=/\v\{\{/ end=/\v\}\}/
+syntax region jinja start=/\v\{\%/ end=/\v\%\}/
 
+" too much highlighy kills the highlight
+"highlight link parserIdent Identifier
+"highlight link parserRoll Macro
 
+"Support jinja 2 directives, this is a template engine, you may disable it
+" if you don't use it
+highlight link jinja DiffChange
 
-highlight link parserFunc Statement
+highlight link innerParserRoll Macro
+highlight link parserCmd Macro
+highlight link parserFunc Identifier
 highlight link ifParserFunc Statement
 highlight link parserCase Statement
 highlight link parserCaseDefault Statement
-highlight link parserIdent Identifier
 highlight link parserCmdBrace Statement
-highlight link parserCmd Macro
 highlight link parserRollBracket Statement
-highlight link parserRoll Macro
-highlight link innerParserRoll Macro
 highlight link parserOps Special
 highlight link parserString String
 highlight link parserConst Constant

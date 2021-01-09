@@ -26,6 +26,9 @@ syntax region htmlCommentPart  contained start=+--+      end=+--\s*+  contains=@
 syntax region  htmlString   contained start=+"+ end=+"+ contains=htmlSpecialChar,javaScriptExpression,@htmlPreproc,parserRoll,parseCmd
 syntax region  htmlString   contained start=+'+ end=+'+ contains=htmlSpecialChar,javaScriptExpression,@htmlPreproc,parserRoll,parseCmd
 
+" RPEdit macro comments (!!, @@ etc.)
+syntax region htmlCommentPart start=/^@/ end=/$/
+syntax region htmlCommentPart start=/^!!/ end=/$/
 
 " MapTool slash commands
 "syntax keyword mtCom addtokenstate tsa alias clear clr clearaliases

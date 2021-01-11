@@ -6,6 +6,11 @@ let b:did_ftplugin = 1
 
 set syntax=mtmacro
 
+" set tabs to same as MapTool editor
+set noexpandtab
+set shiftwidth=2
+set tabstop=2
+
 " HTML Comments
 noremap <buffer> <LocalLeader>hc i<!--  --><ESC>bhi
 inoremap <buffer> <LocalLeader>hc <!--  --><ESC>bhi

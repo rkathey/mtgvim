@@ -26,6 +26,9 @@ syntax region htmlCommentPart  contained start=+--+      end=+--\s*+  contains=@
 syntax region  htmlString   contained start=+"+ end=+"+ contains=htmlSpecialChar,javaScriptExpression,@htmlPreproc,parserRoll,parseCmd
 syntax region  htmlString   contained start=+'+ end=+'+ contains=htmlSpecialChar,javaScriptExpression,@htmlPreproc,parserRoll,parseCmd
 
+" RPEdit macro comments (!!, @@ etc.)
+syntax region htmlCommentPart start=/^@/ end=/$/
+syntax region htmlCommentPart start=/^!!/ end=/$/
 
 " MapTool slash commands
 "syntax keyword mtCom addtokenstate tsa alias clear clr clearaliases
@@ -178,7 +181,7 @@ syntax region beCountFull matchgroup=beCount start=/\<\cc\(ount\)\?\s*(/re=e-2 e
 syntax region beTextFull matchgroup=beText start=/\<\ct\(ooltip\)\?\s*(/ end=/)\s*[,:]/ms=s+1 contained contains=ifParserFunc,parserFunc,parserIdent,parserString,parserConst,parserFloatNumber
 syntax region beForEachFull matchgroup=beForEach start=/\<\cforeach\s*(/he=s+3 end=/)\s*[,:]/me=s+1 contained  contains=ifParserFunc,parserFunc,parserIdent,parserString,parserConst,parserFloatNumber
 syntax region beWhileFull matchgroup=beWhile start=/\<\cwhile\s*(/me=e-2 end=/)\s*[,:]/me=s+1 contained  contains=ifParserFunc,parserFunc,parserIdent,parserString,parserConst,parserFloatNumber
-syntax region beIfFull matchgroup=beIf start=/\<\cif\s*(/me=e-2 end=/)\s*[,:]/me=s+1 contained  contains=ifParserFunc,parserFunc,parserIdent,parserString,parserConst,parserFloatNumber
+syntax region beIfFull matchgroup=beIf start=/\<\cif\s*(/me=e-2 end=/)\s*[,:\]]/me=s+1 contained  contains=ifParserFunc,parserFunc,parserIdent,parserString,parserConst,parserFloatNumber
 syntax region beMacroFull matchgroup=beMacro start=/\<\cmacro\s*(/me=e-2 end=/)\s*[,:]/me=s+1 contained  contains=ifParserFunc,parserFunc,parserIdent,parserString,parserConst,parserFloatNumber
 syntax region beForFull matchgroup=beFor start=/\<\cfor\s*(/me=e-2 end=/)\s*[,:]/me=s+1 contained  contains=ifParserFunc,parserFunc,parserIdent,parserString,parserConst,parserFloatNumber
 syntax region beSwitchFull matchgroup=beSwitch start=/\<\cswitch\s*(/me=e-2 end=/)\s*[,:]/me=s+1 contained  contains=ifParserFunc,parserFunc,parserIdent,parserString,parserConst,parserFloatNumber
